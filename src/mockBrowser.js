@@ -5,15 +5,28 @@ const promptResponses = []
 const alertMessages = []
 const consoleMessages = []
 
-// Reset all stored messages/responses
+// Track function call counts
+const callCounts = {
+  prompt: 0,
+  alert: 0,
+  consoleLog: 0
+}
+
+// Reset all stored messages/responses and call counts
 const resetMocks = () => {
   promptResponses.length = 0
   alertMessages.length = 0
   consoleMessages.length = 0
+  
+  // Reset call counts
+  callCounts.prompt = 0
+  callCounts.alert = 0
+  callCounts.consoleLog = 0
 }
 
 // Mock for window.prompt
 const mockPrompt = (message, defaultValue = '') => {
+  callCounts.prompt++
   const response = promptResponses.shift() || defaultValue
   consoleMessages.push(`PROMPT: ${message}`)
   return response
@@ -21,12 +34,14 @@ const mockPrompt = (message, defaultValue = '') => {
 
 // Mock for window.alert
 const mockAlert = message => {
+  callCounts.alert++
   alertMessages.push(message)
   consoleMessages.push(`ALERT: ${message}`)
 }
 
 // Mock for console.log
 const mockConsoleLog = (...args) => {
+  callCounts.consoleLog++
   const message = args.join(' ')
   consoleMessages.push(message)
 }
@@ -39,6 +54,7 @@ const setPromptResponses = responses => {
 // Get recorded information
 const getAlertMessages = () => [...alertMessages]
 const getConsoleMessages = () => [...consoleMessages]
+const getCallCounts = () => ({...callCounts})
 
 export {
   mockPrompt,
@@ -47,5 +63,6 @@ export {
   resetMocks,
   setPromptResponses,
   getAlertMessages,
-  getConsoleMessages
+  getConsoleMessages,
+  getCallCounts
 } 

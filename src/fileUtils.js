@@ -76,30 +76,51 @@ const extractExpectedBehavior = (markdownContent) => {
 
 // Find all student submission folders
 const findStudentFolders = async (submissionPath) => {
-  const folders = await readDirAsync(submissionPath)
-  const studentFolders = []
-  
-  for (const folder of folders) {
-    const folderPath = path.join(submissionPath, folder)
-    const stats = await statAsync(folderPath)
+  try {
+    console.log(`Accessing directory: "${submissionPath}"`)
     
-    if (stats.isDirectory()) {
-      const exerciseFolder = path.join(folderPath, 'Day1-10-ExRunner', 'Exercise-Runner', 'ex')
+    // Check if the directory exists and is accessible
+    try {
+      await statAsync(submissionPath)
+    } catch (error) {
+      console.error(`Error accessing submission path: ${submissionPath}`)
+      console.error(`Error details: ${error.message}`)
+      throw new Error(`Cannot access the submission directory: ${submissionPath}. Please check the path and try again.`)
+    }
+    
+    const folders = await readDirAsync(submissionPath)
+    const studentFolders = []
+    
+    for (const folder of folders) {
+      const folderPath = path.join(submissionPath, folder)
       
       try {
-        await statAsync(exerciseFolder)
-        studentFolders.push({
-          name: folder,
-          path: exerciseFolder
-        })
+        const stats = await statAsync(folderPath)
+        
+        if (stats.isDirectory()) {
+          const exerciseFolder = path.join(folderPath, 'Day1-10-ExRunner', 'Exercise-Runner', 'ex')
+          
+          try {
+            await statAsync(exerciseFolder)
+            studentFolders.push({
+              name: folder,
+              path: exerciseFolder
+            })
+          } catch (error) {
+            // Exercise folder doesn't exist for this student
+            console.log(`No exercise folder found for student: ${folder}`)
+          }
+        }
       } catch (error) {
-        // Exercise folder doesn't exist for this student
-        console.log(`No exercise folder found for student: ${folder}`)
+        console.log(`Error accessing student folder: ${folderPath}`)
       }
     }
+    
+    return studentFolders
+  } catch (error) {
+    console.error(`Error searching for student folders: ${error.message}`)
+    throw error
   }
-  
-  return studentFolders
 }
 
 // Get list of exercise files for a student

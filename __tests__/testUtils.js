@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import vm from 'vm'
-import { mockPrompt, mockAlert, mockConsoleLog, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages } from '../src/mockBrowser.js'
+import { mockPrompt, mockAlert, mockConsoleLog, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getCallCounts } from '../src/mockBrowser.js'
 
 // Run a student's code in a sandbox environment
 const runCode = (code, inputs = []) => {
@@ -21,17 +21,56 @@ const runCode = (code, inputs = []) => {
   sandbox.global = sandbox
   sandbox.window.document = sandbox.document
   
+  // Setup variable tracking
+  const declaredVariables = new Set()
+  const accessedVariables = new Set()
+  
+  // Track variable usage through proxies
+  const originalDefineProperty = Object.defineProperty
+  sandbox.Object = {
+    ...Object,
+    defineProperty: function(obj, prop, descriptor) {
+      if (obj === sandbox && typeof prop === 'string') {
+        declaredVariables.add(prop)
+      }
+      return originalDefineProperty(obj, prop, descriptor)
+    }
+  }
+  
+  // Create a handler for the vm context
+  const handler = {
+    get: function(target, prop) {
+      if (typeof prop === 'string' && !prop.startsWith('_') && 
+          !['console', 'alert', 'prompt', 'document', 'window'].includes(prop)) {
+        accessedVariables.add(prop)
+      }
+      return target[prop]
+    },
+    set: function(target, prop, value) {
+      if (typeof prop === 'string' && !prop.startsWith('_')) {
+        declaredVariables.add(prop)
+      }
+      target[prop] = value
+      return true
+    }
+  }
+  
   // Execute the code
   try {
     const script = new vm.Script(code)
-    const context = vm.createContext(sandbox)
+    const context = vm.createContext(new Proxy(sandbox, handler))
     script.runInContext(context)
     
     return {
       success: true,
       consoleOutput: getConsoleMessages(),
       alertOutput: getAlertMessages(),
-      allOutput: [...getConsoleMessages(), ...getAlertMessages()]
+      allOutput: [...getConsoleMessages(), ...getAlertMessages()],
+      callCounts: getCallCounts(),
+      variables: {
+        declared: Array.from(declaredVariables),
+        accessed: Array.from(accessedVariables)
+      }
     }
   } catch (error) {
     return {
@@ -39,7 +78,12 @@ const runCode = (code, inputs = []) => {
       error: error.message,
       consoleOutput: getConsoleMessages(),
       alertOutput: getAlertMessages(),
-      allOutput: [...getConsoleMessages(), ...getAlertMessages()]
+      allOutput: [...getConsoleMessages(), ...getAlertMessages()],
+      callCounts: getCallCounts(),
+      variables: {
+        declared: Array.from(declaredVariables),
+        accessed: Array.from(accessedVariables)
+      }
     }
   }
 }
@@ -78,10 +122,77 @@ const outputContainsNumber = (outputs, expectedNumber, tolerance = 0.01) => {
   )
 }
 
+// Analyze code for potential issues like commented-out code
+const analyzeCode = (code) => {
+  // Count lines of code
+  const lines = code.split('\n')
+  const totalLines = lines.length
+  
+  // Count commented lines
+  const commentedLines = lines.filter(line => 
+    line.trim().startsWith('//') || 
+    line.trim().startsWith('/*') || 
+    line.trim().startsWith('*') || 
+    line.trim().startsWith('*/')
+  ).length
+  
+  // Count non-empty, non-comment lines
+  const activeCodeLines = lines.filter(line => {
+    const trimmed = line.trim()
+    return trimmed && 
+      !trimmed.startsWith('//') && 
+      !trimmed.startsWith('/*') && 
+      !trimmed.startsWith('*') && 
+      !trimmed.startsWith('*/')
+  }).length
+  
+  // Detect multi-line comment blocks
+  let inCommentBlock = false
+  let multiLineCommentCount = 0
+  
+  for (const line of lines) {
+    const trimmed = line.trim()
+    
+    if (!inCommentBlock && trimmed.includes('/*')) {
+      inCommentBlock = true
+      multiLineCommentCount++
+    }
+    
+    if (inCommentBlock && trimmed.includes('*/')) {
+      inCommentBlock = false
+    }
+  }
+  
+  // Check for commented-out function calls
+  const commentedFunctionCalls = {
+    prompt: (code.match(/\/\/.*prompt\s*\(/g) || []).length + 
+           (code.match(/\/\*[\s\S]*?prompt\s*\([\s\S]*?\*\//g) || []).length,
+    alert: (code.match(/\/\/.*alert\s*\(/g) || []).length + 
+           (code.match(/\/\*[\s\S]*?alert\s*\([\s\S]*?\*\//g) || []).length,
+    console: (code.match(/\/\/.*console\.log\s*\(/g) || []).length + 
+           (code.match(/\/\*[\s\S]*?console\.log\s*\([\s\S]*?\*\//g) || []).length
+  }
+  
+  return {
+    totalLines,
+    commentedLines,
+    activeCodeLines,
+    commentedToActiveRatio: commentedLines / (activeCodeLines || 1),
+    multiLineCommentBlocks: multiLineCommentCount,
+    commentedFunctionCalls,
+    potentialIssues: {
+      mostlyComments: commentedLines > activeCodeLines,
+      commentedRequiredFunctions: commentedFunctionCalls.prompt > 0 || 
+                                 commentedFunctionCalls.alert > 0
+    }
+  }
+}
+
 export {
   runCode,
   outputContains,
   outputMatches,
   outputContainsAll,
-  outputContainsNumber
+  outputContainsNumber,
+  analyzeCode
 } 

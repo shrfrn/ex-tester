@@ -7,16 +7,24 @@ import { generateReport, saveReport } from './reportGenerator.js'
 
 const prompt = promptSync({ sigint: true })
 
+// Helper function to clean up paths - remove quotes and trim whitespace
+const cleanPath = (inputPath) => {
+  if (!inputPath) return inputPath
+  return inputPath.replace(/^['"]|['"]$/g, '').trim()
+}
+
 const main = async () => {
   console.log('Student Assignment Testing Suite')
   console.log('==============================\n')
   
   // Get assignment path from config or use default
-  const assignmentsPath = '/Volumes/Extreme 2T/Dropbox/Teaching/JS-Basics'
+  const assignmentsPath = cleanPath('/Volumes/Extreme 2T/Dropbox/Teaching/JS-Basics')
   console.log(`Reading assignments from: ${assignmentsPath}`)
   
   // Get submissions folder from user
-  const submissionsPath = prompt('Enter the path to the student submissions folder: ')
+  const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
+  const submissionsPath = cleanPath(rawSubmissionsPath)
+  
   if (!submissionsPath) {
     console.error('No submissions path provided. Exiting.')
     return
@@ -48,7 +56,7 @@ const main = async () => {
     })
     
     // Find student folders
-    console.log('Finding student submission folders...')
+    console.log(`Finding student submission folders in: ${submissionsPath}`)
     const studentFolders = await findStudentFolders(submissionsPath)
     console.log(`Found ${studentFolders.length} student folders.`)
     
