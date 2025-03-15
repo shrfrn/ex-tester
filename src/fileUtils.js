@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 import MarkdownIt from 'markdown-it'
+import { glob } from 'glob'
 
 const readFileAsync = promisify(fs.readFile)
 const readDirAsync = promisify(fs.readdir)
@@ -74,49 +75,36 @@ const extractExpectedBehavior = (markdownContent) => {
   return behaviorsMap
 }
 
-// Find all student submission folders
-const findStudentFolders = async (submissionPath) => {
+// Find all student submission folders using glob pattern
+async function findStudentFolders(globPattern) {
   try {
-    console.log(`Accessing directory: "${submissionPath}"`)
+    console.log(`Searching with pattern: "${globPattern}"`)
     
-    // Check if the directory exists and is accessible
-    try {
-      await statAsync(submissionPath)
-    } catch (error) {
-      console.error(`Error accessing submission path: ${submissionPath}`)
-      console.error(`Error details: ${error.message}`)
-      throw new Error(`Cannot access the submission directory: ${submissionPath}. Please check the path and try again.`)
+    // Extract the named group pattern for student name
+    const studentNamePattern = globPattern.match(/\{student:([^}]+)\}/)
+    if (!studentNamePattern) {
+      throw new Error('Glob pattern must include a named group for student name like "{student:*}"')
     }
     
-    const folders = await readDirAsync(submissionPath)
-    const studentFolders = []
+    // Replace the named group with a regular glob pattern for matching
+    const searchPattern = globPattern.replace(/\{student:([^}]+)\}/, '**')
+    const matches = await glob(searchPattern, { absolute: true })
     
-    for (const folder of folders) {
-      const folderPath = path.join(submissionPath, folder)
+    // Find how far the student name is from the end of the pattern
+    const reversedPattern = globPattern.split(path.sep).reverse()
+    const studentDistanceFromEnd = reversedPattern.findIndex(part => 
+      part.includes('{student:'))
+    
+    return matches.map(exercisePath => {
+      // Split the path from the end and use same distance as pattern
+      const reversedPath = exercisePath.split(path.sep).reverse()
+      const studentName = reversedPath[studentDistanceFromEnd] || ''
       
-      try {
-        const stats = await statAsync(folderPath)
-        
-        if (stats.isDirectory()) {
-          const exerciseFolder = path.join(folderPath, 'Day1-10-ExRunner', 'Exercise-Runner', 'ex')
-          
-          try {
-            await statAsync(exerciseFolder)
-            studentFolders.push({
-              name: folder,
-              path: exerciseFolder
-            })
-          } catch (error) {
-            // Exercise folder doesn't exist for this student
-            console.log(`No exercise folder found for student: ${folder}`)
-          }
-        }
-      } catch (error) {
-        console.log(`Error accessing student folder: ${folderPath}`)
+      return {
+        name: studentName,
+        path: exercisePath
       }
-    }
-    
-    return studentFolders
+    })
   } catch (error) {
     console.error(`Error searching for student folders: ${error.message}`)
     throw error

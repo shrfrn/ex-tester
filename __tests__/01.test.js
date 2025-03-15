@@ -2,8 +2,8 @@ import fs from 'fs'
 import path from 'path'
 
 import { jest } from '@jest/globals'
-import { runCode, outputContains } from './testUtils.js'
-import { createTestCollector } from './testCollector.js'
+import { runCode, outputContains } from '../src/testUtils.js'
+import { createTestCollector } from '../src/testCollector.js'
 
 describe('Exercise 01 - Full Name Greeting', () => {
 	let studentCode
@@ -14,6 +14,7 @@ describe('Exercise 01 - Full Name Greeting', () => {
 		studentFilePath = process.env.CURRENT_STUDENT_FILE_PATH || path.join(process.cwd(), '01.js')
 		studentCode = fs.readFileSync(studentFilePath, 'utf8')
 		collector = createTestCollector()
+        console.log('Test 01')
 	})
 
 	beforeEach(() => jest.clearAllMocks())

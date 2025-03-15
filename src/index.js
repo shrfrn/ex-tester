@@ -1,5 +1,6 @@
 import path from 'path'
 import promptSync from 'prompt-sync'
+
 import { parseAssignmentFiles, findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
 import { analyzeStudentCodeQuality } from './codeAnalyzer.js'
@@ -14,51 +15,55 @@ const cleanPath = (inputPath) => {
 }
 
 const main = async () => {
-  console.log('Student Assignment Testing Suite')
-  console.log('==============================\n')
+//   console.log('Student Assignment Testing Suite')
+//   console.log('==============================\n')
   
   // Get assignment path from config or use default
-  const assignmentsPath = cleanPath('/Volumes/Extreme 2T/Dropbox/Teaching/JS-Basics')
-  console.log(`Reading assignments from: ${assignmentsPath}`)
+//   const assignmentsPath = cleanPath('/Volumes/Extreme 2T/Dropbox/Teaching/JS-Basics')
+//   console.log(`Reading assignments from: ${assignmentsPath}`)
   
   // Get submissions folder from user
-  const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
-  const submissionsPath = cleanPath(rawSubmissionsPath)
+//   const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
+//   const submissionsPath = cleanPath(rawSubmissionsPath)
+  const submissionsPath = '../CaFeb25-ExerciseSubmission/{student:*}/Day1-10-ExRunner/**/ex'
   
-  if (!submissionsPath) {
-    console.error('No submissions path provided. Exiting.')
-    return
-  }
+//   if (!submissionsPath) {
+//     console.error('No submissions path provided. Exiting.')
+//     return
+//   }
   
   // Get exercise range from user
-  const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
-  if (!exerciseRangeInput) {
-    console.error('No exercise range provided. Exiting.')
-    return
-  }
+//   const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
+//   if (!exerciseRangeInput) {
+//     console.error('No exercise range provided. Exiting.')
+//     return
+//   }
   
   // Parse exercise range
-  const [start, end] = exerciseRangeInput.split('-').map(num => parseInt(num.trim()))
-  if (isNaN(start) || isNaN(end) || start > end) {
-    console.error('Invalid exercise range. Exiting.')
-    return
-  }
+//   const [start, end] = exerciseRangeInput.split('-').map(num => parseInt(num.trim()))
+//   if (isNaN(start) || isNaN(end) || start > end) {
+//     console.error('Invalid exercise range. Exiting.')
+//     return
+//   }
+const start = 1
+const end = 1
   
-  console.log(`\nProcessing exercises ${start} to ${end}...`)
+//   console.log(`\nProcessing exercises ${start} to ${end}...`)
   
   try {
-    // Parse assignment requirements
-    console.log('Parsing assignment files...')
-    const assignments = await parseAssignmentFiles(assignmentsPath)
-    const assignmentRequirements = {}
-    assignments.forEach(assignment => {
-      assignmentRequirements[assignment.id] = assignment.expectedBehavior
-    })
+    // // Parse assignment requirements
+    // console.log('Parsing assignment files...')
+    // const assignments = await parseAssignmentFiles(assignmentsPath)
+    // const assignmentRequirements = {}
+    // assignments.forEach(assignment => {
+    //   assignmentRequirements[assignment.id] = assignment.expectedBehavior
+    // })
     
     // Find student folders
     console.log(`Finding student submission folders in: ${submissionsPath}`)
     const studentFolders = await findStudentFolders(submissionsPath)
     console.log(`Found ${studentFolders.length} student folders.`)
+    console.log(studentFolders[0], studentFolders[1])
     
     // Process each student
     const studentResults = []
@@ -73,8 +78,7 @@ const main = async () => {
       const testResults = await testStudentExercises(
         student.path,
         exerciseFiles,
-        assignmentRequirements,
-        [start, end]
+        [1, 1]
       )
       
       // Analyze code quality
