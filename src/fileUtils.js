@@ -112,11 +112,11 @@ async function findStudentFolders(globPattern) {
 }
 
 // Get list of exercise files for a student
-const getStudentExercises = async (studentFolder) => {
+const getStudentExercises = async (studentFolder, exerciseNumbers) => {
   try {
     const files = await readDirAsync(studentFolder)
     return files
-      .filter(file => /^\d+\.js$/.test(file))
+      .filter(file => /^\d+\.js$/.test(file) && exerciseNumbers.includes(parseInt(file)))
       .sort((a, b) => {
         const numA = parseInt(a)
         const numB = parseInt(b)
