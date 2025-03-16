@@ -1,138 +1,74 @@
 import fs from 'fs'
-import path from 'path'
 
-import { jest } from '@jest/globals'
-import { runCode, outputContains } from '../src/testUtils.js'
+import { runScript, outputContains } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 
-describe('Exercise 01 - Full Name Greeting', () => {
-
-    let studentFilePath = process.env.CURRENT_STUDENT_FILE_PATH || path.join(process.cwd(), '01.js')
+export function test(studentFilePath) {
     let studentCode = fs.readFileSync(studentFilePath, 'utf8')
     let collector = createTestCollector()
 
-    console.log('Test 01')
+    const firstName = 'John'
+    const lastName = 'Smith'
+    const result = runScript(studentCode, [firstName, lastName])
 
-	test('should prompt for first and last name and display full name greeting', () => {
-		const firstName = 'John'
-		const lastName = 'Smith'
-		const result = runCode(studentCode, [firstName, lastName])
+    collector.checkAndRecord('Code executes successfully', result.success, 30)
 
-		collector.checkAndRecord('Code executes successfully', () => {
-			expect(result.success).toBe(true)
-		})
+    collector.checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
+    collector.checkAndRecord('At least two variables store prompt results', () => {
+        const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
+        const matches = studentCode.match(promptPattern) || []
+        return matches.length >= 2
+    }, 10)
 
-		collector.checkAndRecord('Prompt called at least twice', () => {
-			expect(result.callCounts.prompt).toBeGreaterThanOrEqual(2)
-		})
+    collector.checkAndRecord('fullName variable declared', 
+            result.variables.declared.includes('fullName'), 10)
 
-		collector.checkAndRecord('fullName variable declared', () => {
-			expect(result.variables.declared).toContain('fullName')
-		})
+    collector.checkAndRecord('fullName variable accessed', 
+            result.variables.accessed.includes('fullName'), 10)
 
-		collector.checkAndRecord('fullName variable accessed', () => {
-			expect(result.variables.accessed).toContain('fullName')
-		})
+    collector.checkAndRecord('fullName value is structured correctly', () => {
+        const fullNameValue = result.variables.values.fullName
+        const nameOrderPattern = new RegExp(`^${firstName}.*${lastName}$`)
+        return fullNameValue && nameOrderPattern.test(fullNameValue)
+    }, 10)
 
-		collector.checkAndRecord('Output method used', () => {
-			expect(result.callCounts.alert + result.callCounts.consoleLog).toBeGreaterThan(0)
-		})
+    collector.checkAndRecord('Output method used', 
+            result.callCounts.alert + result.callCounts.consoleLog > 0, 10)
 
-		collector.checkAndRecord('Output contains first name', () => {
-			expect(outputContains(result.allOutput, firstName)).toBe(true)
-		})
+    collector.checkAndRecord('Output contains first name', 
+            outputContains(result.allOutput, firstName), 10)
 
-		collector.checkAndRecord('Output contains last name', () => {
-			expect(outputContains(result.allOutput, lastName)).toBe(true)
-		})
+    collector.checkAndRecord('Output contains last name', 
+            outputContains(result.allOutput, lastName), 10)
 
-		collector.checkAndRecord('Valid greeting format', () => {
-			const isValidGreeting = result.allOutput.some(output => {
-				const containsFirstName = output.includes(firstName)
-				const containsLastName = output.includes(lastName)
-				const hasAdditionalWord = output.split(/\s+/).length > 2
-				return containsFirstName && containsLastName && hasAdditionalWord
-			})
-			expect(isValidGreeting).toBe(true)
-		})
-	})
+    collector.checkAndRecord('Valid greeting format', () => {
+        result.allOutput.some(output => {
+            const namePattern = new RegExp(`${firstName}\\s+${lastName}`)
+            const hasCorrectNameFormat = namePattern.test(output)
+            const hasAdditionalWord = output.split(/\s+/).length > 2
 
-	// test('should work with different name inputs', () => {
-	// 	const testCases = [
-	// 		['Alice', 'Johnson'],
-	// 		['María', 'García'],
-	// 		['Alex', 'Smith-Johnson'],
-	// 	]
-	// 	const allOutputs = new Set()
+            return hasCorrectNameFormat && hasAdditionalWord
+        })
+    }, 10)
 
-	// 	testCases.forEach(([firstName, lastName]) => {
-	// 		const result = runCode(studentCode, [firstName, lastName])
+    const testCases = [
+        ['Alice', 'Johnson'],
+        ['María', 'García'],
+        ['Alex', 'Smith-Johnson'],
+    ]
+    const allOutputs = new Set()
 
-	// 		collector.checkAndRecord(`Code executes successfully for ${firstName} ${lastName}`, () => {
-	// 			expect(result.success).toBe(true)
-	// 		})
+    testCases.forEach(([firstName, lastName]) => {
+        const result = runCode(studentCode, [firstName, lastName])
+        allOutputs.add(JSON.stringify(result.allOutput))
+    })
 
-	// 		collector.checkAndRecord(`Prompt called twice for ${firstName} ${lastName}`, () => {
-	// 			expect(result.callCounts.prompt).toBeGreaterThanOrEqual(2)
-	// 		})
+    collector.checkAndRecord('Outputs differ for different inputs', allOutputs.size === 3, 10)
 
-	// 		collector.checkAndRecord(`Output contains ${firstName}`, () => {
-	// 			expect(outputContains(result.allOutput, firstName)).toBe(true)
-	// 		})
+    collector.checkAndRecord('fullName concatenation syntax correct', () => {
+        const regex = /fullName\s*=\s*firstName\s*[\+]\s*lastName/
+        return regex.test(studentCode)
+    }, 10)
 
-	// 		collector.checkAndRecord(`Output contains ${lastName}`, () => {
-	// 			expect(outputContains(result.allOutput, lastName)).toBe(true)
-	// 		})
-
-	// 		allOutputs.add(JSON.stringify(result.allOutput))
-	// 	})
-
-	// 	collector.checkAndRecord('Outputs differ for different inputs', () => {
-	// 		expect(allOutputs.size).toBe(3)
-	// 	})
-	// })
-
-	// test('should use variables correctly to build the full name', () => {
-	// 	const result = runCode(studentCode, ['John', 'Doe'])
-
-	// 	collector.checkAndRecord('Code executes successfully', () => {
-	// 		expect(result.success).toBe(true)
-	// 	})
-
-	// 	collector.checkAndRecord('Output includes full name', () => {
-	// 		const fullNameOutput = result.allOutput.some(output => output.includes('John Doe'))
-	// 		expect(fullNameOutput).toBe(true)
-	// 	})
-	// })
-
-	// test('should properly concatenate firstName and lastName variables', () => {
-	// 	collector.checkAndRecord('Variables store prompt results', () => {
-	// 		expect(studentCode).toMatch(/(let|const|var)[\s\S]*?=[\s\S]*?prompt/)
-	// 	})
-
-	// 	collector.checkAndRecord('firstName variable declared properly', () => {
-	// 		expect(studentCode).toMatch(/(let|const|var)\s+firstName\s*=/)
-	// 	})
-
-	// 	collector.checkAndRecord('lastName variable declared properly', () => {
-	// 		expect(studentCode).toMatch(/(let|const|var)\s+lastName\s*=/)
-	// 	})
-
-	// 	collector.checkAndRecord('fullName concatenation syntax correct', () => {
-	// 		expect(studentCode).toMatch(/fullName\s*=\s*firstName\s*[\+]\s*lastName/)
-	// 	})
-
-	// 	const result = runCode(studentCode, ['John', 'Doe'])
-		
-	// 	collector.checkAndRecord('Code executes successfully', () => {
-	// 		expect(result.success).toBe(true)
-	// 	})
-
-	// 	collector.checkAndRecord('fullName contains correct concatenated value', () => {
-	// 		expect(result.variables.values.fullName).toMatch(/^John\s*Doe$/)
-	// 	})
-
-	// 	// Print final results after all tests
-	// 	collector.printResults()
-	// })
-})
+    return collector.getResults()
+}

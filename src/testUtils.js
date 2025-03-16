@@ -1,49 +1,66 @@
-import path from 'path'
 import vm from 'vm'
-
 import { mockPrompt, mockAlert, mockConsoleLog, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getCallCounts } from './mockBrowser.js'
 
 export { 
-    runCode, 
-    runTests, 
+    runScript, 
+    runFunction,
     outputContains, 
     outputMatches, 
     outputContainsAll, 
-    outputContainsNumber, 
+    outputContainsNumber 
 }
 
-async function runTests(exerciseId) {
-	const testScript = '../__tests__/' + String(exerciseId).padStart(2, '0') + '.test.js'
+let context = null
 
-    const config = {
-        testEnvironment: 'node',
-        // rootDir: '../__tests__/', // Ensures Jest runs in the right directory
-        testMatch: [path.resolve(process.cwd(), '__tests__/01.test.js')],
-        verbose: false,
-      }
+// Run a student's code in a sandbox environment
+function runScript(code, inputs = []) {
+	let results = {}
 
-    try {
-        const results = await runCLI(config, [process.cwd()])
-    } catch (error) {
-        console.log(error)
-    }
+	try {
+		setPromptResponses(inputs)
+		_runInContext(code)
 
-    console.log(results)
-	return {
-		success: true,
-		consoleOutput: getConsoleMessages(),
-		alertOutput: getAlertMessages(),
-		allOutput: [...getConsoleMessages(), ...getAlertMessages()],
-		callCounts: getCallCounts(),
-		variables: {
-			declared: Array.from(declaredVariables),
-			accessed: Array.from(accessedVariables),
-		},
+		results.success = true
+	} catch (error) {
+		results.success = false
+		results.error = error.message
+	} finally {
+		results = { ...results, ..._getSideEffects() }
+		return results
 	}
 }
 
 // Run a student's code in a sandbox environment
-function runCode(code, inputs = [], functionName = null) {
+function runFunction(functionName, inputs = []) {
+	if (!context) throw new Error('Context not initialized')
+	if (!context[functionName]) throw new Error(`Function ${functionName} not found`)
+
+	let results = {}
+	resetMocks()
+
+	try {
+		var returnValue = context[functionName](...inputs)
+
+		results.success = true
+		results.returnValue = returnValue
+	} catch (error) {
+		results.success = false
+		results.error = error.message
+	} finally {
+		results = { ...results, ..._getSideEffects() }
+		return results
+	}
+}
+
+function _runInContext(code, timeout = 500) {
+	const sandbox = _initSandbox()
+	const script = new vm.Script(code)
+
+	context = vm.createContext(sandbox)
+	script.runInContext(context, { timeout })
+}
+
+function _initSandbox() {
 	resetMocks()
 
 	// Create sandbox with mocked browser functions
@@ -51,6 +68,10 @@ function runCode(code, inputs = [], functionName = null) {
 		console: { log: mockConsoleLog },
 		alert: mockAlert,
 		prompt: mockPrompt,
+
+		// Setup variable tracking
+		declaredVariables: new Set(),
+		accessedVariables: new Set(),
 
 		document: {},
 		window: {},
@@ -67,17 +88,13 @@ function runCode(code, inputs = [], functionName = null) {
 	sandbox.global = sandbox
 	sandbox.window.document = sandbox.document
 
-	// Setup variable tracking
-	const declaredVariables = new Set()
-	const accessedVariables = new Set()
-
 	// Track variable usage through proxies
 	const originalDefineProperty = Object.defineProperty
 	sandbox.Object = {
 		...Object,
 		defineProperty: function (obj, prop, descriptor) {
 			if (obj === sandbox && typeof prop === 'string') {
-				declaredVariables.add(prop)
+				obj.declaredVariables.add(prop)
 			}
 			return originalDefineProperty(obj, prop, descriptor)
 		},
@@ -87,59 +104,31 @@ function runCode(code, inputs = [], functionName = null) {
 	const handler = {
 		get: function (target, prop) {
 			if (typeof prop === 'string' && !prop.startsWith('_') && !['console', 'alert', 'prompt', 'document', 'window'].includes(prop)) {
-				accessedVariables.add(prop)
+				target.accessedVariables.add(prop)
 			}
 			return target[prop]
 		},
 		set: function (target, prop, value) {
 			if (typeof prop === 'string' && !prop.startsWith('_')) {
-				declaredVariables.add(prop)
+				target.declaredVariables.add(prop)
 			}
 			target[prop] = value
 			return true
 		},
 	}
+	return new Proxy(sandbox, handler)
+}
 
-    if (!functionName) setPromptResponses(inputs)
-
-	// Execute the code
-	try {
-		const script = new vm.Script(code)
-		const context = vm.createContext(new Proxy(sandbox, handler))
-		script.runInContext(context, { timeout: 500 })
-
-        if (functionName) {
-            if (typeof context[functionName] !== 'function') {
-                throw new Error(`Function ${functionName} not found`)
-            }
-            resetMocks()
-            context[functionName](...inputs)
-        }
-
-		return {
-			success: true,
-			consoleOutput: getConsoleMessages(),
-			alertOutput: getAlertMessages(),
-			allOutput: [...getConsoleMessages(), ...getAlertMessages()],
-			callCounts: getCallCounts(),
-			variables: {
-				declared: Array.from(declaredVariables),
-				accessed: Array.from(accessedVariables),
-			},
-		}
-	} catch (error) {
-		return {
-			success: false,
-			error: error.message,
-			consoleOutput: getConsoleMessages(),
-			alertOutput: getAlertMessages(),
-			allOutput: [...getConsoleMessages(), ...getAlertMessages()],
-			callCounts: getCallCounts(),
-			variables: {
-				declared: Array.from(declaredVariables),
-				accessed: Array.from(accessedVariables),
-			},
-		}
+function _getSideEffects() {
+	return {
+		consoleOutput: getConsoleMessages(),
+		alertOutput: getAlertMessages(),
+		allOutput: [...getConsoleMessages(), ...getAlertMessages()],
+		callCounts: getCallCounts(),
+		variables: {
+			declared: Array.from(context.declaredVariables),
+			accessed: Array.from(context.accessedVariables),
+		},
 	}
 }
 

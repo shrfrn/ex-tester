@@ -3,20 +3,21 @@ function createTestCollector() {
         passed: [],
         failed: [],
         score: 0,
-        count: 0
+        count: 0,
+        maxScore: 0,
     }
 
-    function checkAndRecord(description, testFn, score = 10) {
+    function checkAndRecord(description, condition, score = 10) {
         results.count++
-        try {
-            testFn()
-            results.passed.push(description)
+        results.maxScore += score
+
+        if (condition) {
             results.score += score
-            return true
-        } catch (error) {
+            results.passed.push(description)
+        } else {
             results.failed.push({ description, error: error.message })
-            return false
         }
+        return condition
     }
 
     function getResults() {

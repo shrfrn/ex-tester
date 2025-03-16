@@ -15,12 +15,8 @@ const cleanPath = inputPath => {
 }
 
 const main = async () => {
-	//   console.log('Student Assignment Testing Suite')
-	//   console.log('==============================\n')
-
-	// Get assignment path from config or use default
-	//   const assignmentsPath = cleanPath('/Volumes/Extreme 2T/Dropbox/Teaching/JS-Basics')
-	//   console.log(`Reading assignments from: ${assignmentsPath}`)
+    console.log('Student Assignment Testing Suite')
+    console.log('==============================\n')
 
 	// Get submissions folder from user
 	//   const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
@@ -42,14 +38,9 @@ const main = async () => {
 
 	const exerciseNumbers = parseExerciseRange(exerciseRangeInput)
 
-	//   console.log(`\nProcessing exercises ${start} to ${end}...`)
-
 	try {
 		// Find student folders
-		console.log(`Finding student submission folders in: ${submissionsPath}`)
 		const studentFolders = await findStudentFolders(submissionsPath)
-		console.log(`Found ${studentFolders.length} student folders.`)
-		console.log(studentFolders[0], studentFolders[1])
 
 		// Process each student
 		const studentResults = []
@@ -62,10 +53,10 @@ const main = async () => {
 			console.log(exerciseFiles)
 
 			// Run tests
-			const testResults = await testStudentExercises(student.path, exerciseFiles, [1, 1])
+			const testResults = testStudentExercises(student.path, exerciseFiles)
 
 			// Analyze code quality
-			const codeQualityResults = await analyzeStudentCodeQuality(student.path, exerciseFiles)
+			// const codeQualityResults = await analyzeStudentCodeQuality(student.path, exerciseFiles)
 
 			// Calculate metrics
 			const exercisesInRange = Object.keys(testResults).filter(key => {
