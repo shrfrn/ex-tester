@@ -70,5 +70,5 @@ export function test(studentFilePath) {
         return regex.test(studentCode)
     }, 10)
 
-    return { ...collector.getResults(), success: result.success }
+    return { ...collector.getResults(), success: result.success, weight: 1 }
 }
