@@ -17,8 +17,7 @@ function runScript(code, inputs = []) {
 	let results = {}
 
 	try {
-		setPromptResponses(inputs)
-		_runInContext(code)
+		_runInContext(code, inputs)
 
 		results.success = true
 	} catch (error) {
@@ -52,11 +51,13 @@ function runFunction(functionName, inputs = []) {
 	}
 }
 
-function _runInContext(code, timeout = 500) {
+function _runInContext(code, inputs = [], timeout = 500) {
 	const sandbox = _initSandbox()
 	const script = new vm.Script(code)
-
+    
 	context = vm.createContext(sandbox)
+    
+    setPromptResponses(inputs)
 	script.runInContext(context, { timeout })
 }
 

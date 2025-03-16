@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-import { runScript, outputContains } from '../src/testUtils.js'
+import { runScript } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 
 export function test(studentFilePath) {
@@ -11,7 +11,7 @@ export function test(studentFilePath) {
     const lastName = 'Smith'
     const result = runScript(studentCode, [firstName, lastName])
 
-    collector.checkAndRecord('Code executes successfully', result.success, 30)
+    collector.checkAndRecord('Code executes successfully', result.success, 20)
 
     collector.checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     collector.checkAndRecord('At least two variables store prompt results', () => {
@@ -36,10 +36,10 @@ export function test(studentFilePath) {
             result.callCounts.alert + result.callCounts.consoleLog > 0, 10)
 
     collector.checkAndRecord('Output contains first name', 
-            outputContains(result.allOutput, firstName), 10)
+        result.consoleOutput.some(output => output.includes(firstName)), 10)
 
     collector.checkAndRecord('Output contains last name', 
-            outputContains(result.allOutput, lastName), 10)
+        result.consoleOutput.some(output => output.includes(lastName)), 10)
 
     collector.checkAndRecord('Valid greeting format', () => {
         result.allOutput.some(output => {
@@ -59,7 +59,7 @@ export function test(studentFilePath) {
     const allOutputs = new Set()
 
     testCases.forEach(([firstName, lastName]) => {
-        const result = runCode(studentCode, [firstName, lastName])
+        const result = runScript(studentCode, [firstName, lastName])
         allOutputs.add(JSON.stringify(result.allOutput))
     })
 
@@ -70,5 +70,5 @@ export function test(studentFilePath) {
         return regex.test(studentCode)
     }, 10)
 
-    return collector.getResults()
+    return { ...collector.getResults(), success: result.success }
 }

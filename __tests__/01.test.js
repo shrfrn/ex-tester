@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { jest } from '@jest/globals'
-import { runCode, outputContains } from '../src/testUtils.js'
+import { runScript, outputContains } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 
 describe('Exercise 01 - Full Name Greeting', () => {
@@ -22,7 +22,7 @@ describe('Exercise 01 - Full Name Greeting', () => {
 	test('should prompt for first and last name and display full name greeting', () => {
 		const firstName = 'John'
 		const lastName = 'Smith'
-		const result = runCode(studentCode, [firstName, lastName])
+		const result = runScript(studentCode, [firstName, lastName])
 
 		collector.checkAndRecord('Code executes successfully', () => {
 			expect(result.success).toBe(true)
@@ -72,7 +72,7 @@ describe('Exercise 01 - Full Name Greeting', () => {
 		const allOutputs = new Set()
 
 		testCases.forEach(([firstName, lastName]) => {
-			const result = runCode(studentCode, [firstName, lastName])
+			const result = runScript(studentCode, [firstName, lastName])
 
 			collector.checkAndRecord(`Code executes successfully for ${firstName} ${lastName}`, () => {
 				expect(result.success).toBe(true)
@@ -99,7 +99,7 @@ describe('Exercise 01 - Full Name Greeting', () => {
 	})
 
 	test('should use variables correctly to build the full name', () => {
-		const result = runCode(studentCode, ['John', 'Doe'])
+		const result = runScript(studentCode, ['John', 'Doe'])
 
 		collector.checkAndRecord('Code executes successfully', () => {
 			expect(result.success).toBe(true)
@@ -128,7 +128,7 @@ describe('Exercise 01 - Full Name Greeting', () => {
 			expect(studentCode).toMatch(/fullName\s*=\s*firstName\s*[\+]\s*lastName/)
 		})
 
-		const result = runCode(studentCode, ['John', 'Doe'])
+		const result = runScript(studentCode, ['John', 'Doe'])
 		
 		collector.checkAndRecord('Code executes successfully', () => {
 			expect(result.success).toBe(true)

@@ -29,7 +29,7 @@ const main = async () => {
 	//   }
 
 	// Get exercise range from user
-	const exerciseRangeInput = '1- 4, 6-8, 12 - 13'
+	const exerciseRangeInput = '1'
 	//   const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
 	//   if (!exerciseRangeInput) {
 	//     console.error('No exercise range provided. Exiting.')
@@ -40,7 +40,7 @@ const main = async () => {
 
 	try {
 		// Find student folders
-		const studentFolders = await findStudentFolders(submissionsPath)
+		const studentFolders = (await findStudentFolders(submissionsPath)).slice(0, 1)
 
 		// Process each student
 		const studentResults = []
@@ -50,51 +50,26 @@ const main = async () => {
 
 			// Get exercise files
 			const exerciseFiles = await getStudentExercises(student.path, exerciseNumbers)
-			console.log(exerciseFiles)
+			// console.log(exerciseFiles)
 
 			// Run tests
-			const testResults = testStudentExercises(student.path, exerciseFiles)
+			const testResults = await testStudentExercises(student.path, exerciseFiles)
+			console.log(testResults['01'])
 
-			// Analyze code quality
-			// const codeQualityResults = await analyzeStudentCodeQuality(student.path, exerciseFiles)
-
-			// Calculate metrics
-			const exercisesInRange = Object.keys(testResults).filter(key => {
-				const num = parseInt(key)
-				return num >= start && num <= end
-			})
 
 			const submittedExercises = exercisesInRange.filter(key => testResults[key].submitted !== false)
-
-			const runningExercises = submittedExercises.filter(key => testResults[key].runs === true)
-
-			const correctExercises = submittedExercises.filter(key => testResults[key].correct === true)
-
-			// Calculate percentages
-			const runPercent = Math.round((runningExercises.length / submittedExercises.length) * 100) || 0
-			const correctPercent = Math.round((correctExercises.length / submittedExercises.length) * 100) || 0
+			const runningExercises = submittedExercises.filter(key => testResults[key].success)
 
 			// Add to results
 			studentResults.push({
 				name: student.name,
 				folderPath: student.path,
 				exercisesSubmitted: submittedExercises.map(ex => parseInt(ex)),
-				runPercent,
-				correctPercent,
-				codeQuality: codeQualityResults.overallScore,
 				testResults,
-				qualityResults: codeQualityResults,
 			})
 		}
 
 		// Generate and save report
-		console.log('\nGenerating report...')
-		const report = generateReport(studentResults, submissionsPath, [start, end])
-
-		const outputPath = path.join(process.cwd(), 'student-evaluation-report.md')
-		saveReport(report, outputPath)
-
-		console.log('\nEvaluation complete!')
 	} catch (error) {
 		console.error('Error during evaluation:', error)
 	}

@@ -13,9 +13,9 @@ function createTestCollector() {
 
         if (condition) {
             results.score += score
-            results.passed.push(description)
+            results.passed.push({ description, score })
         } else {
-            results.failed.push({ description, error: error.message })
+            results.failed.push({ description, score })
         }
         return condition
     }
@@ -23,7 +23,7 @@ function createTestCollector() {
     function getResults() {
         return {
             ...results,
-            percentage: Math.round((results.passed.length / results.total) * 100)
+            percentage: Math.round((results.score / results.maxScore) * 100)
         }
     }
 

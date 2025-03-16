@@ -1,26 +1,24 @@
-import path from 'path'
-import { runTests } from './testUtils.js'
+import fs from 'fs'
 
 export { 
     testStudentExercises,
-    testExercise, 
     runTests,
 }
 
 // Run tests for all exercises of a student
-function testStudentExercises(studentFolder, exerciseFiles) {
+async function testStudentExercises(studentFolder, exerciseFiles) {
 	const results = {}
 
-	exerciseFiles.forEach(async exerciseFile => {
-        const exerciseFile = studentFolder + '/' + exerciseFile
-        const exerciseId = parseInt(exerciseFile)
+	await Promise.all(exerciseFiles.map(async exerciseFile => {
+        const exercisePath = studentFolder + '/' + exerciseFile
+        const exerciseId = String(parseInt(exerciseFile)).padStart(2, '0')
 
-		if (await path.exists(exerciseFile)) {
-			results[exerciseId] = await runTests(exerciseId, exerciseFile)
+		if (fs.existsSync(exercisePath)) {
+			results[exerciseId] = await runTests(exerciseId, exercisePath)
 		} else {
 			results[exerciseId] = { submitted: false }
 		}
-    })
+    }))
 
 	return results
 }
@@ -31,7 +29,6 @@ async function runTests(exerciseId, exerciseFile) {
 	const { test } = await import(testScriptPath)
 	const results = test(exerciseFile)
 
-	console.log(results)
 	return results
 }
 
