@@ -2,10 +2,8 @@ import path from 'path'
 import promptSync from 'prompt-sync'
 import fs from 'fs'
 
-import { parseAssignmentFiles, findStudentFolders, getStudentExercises } from './fileUtils.js'
+import { findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
-import { analyzeStudentCodeQuality } from './codeAnalyzer.js'
-import { generateReport, saveReport } from './reportGenerator.js'
 
 const prompt = promptSync({ sigint: true })
 
@@ -50,7 +48,7 @@ const main = async () => {
 			const exerciseFiles = await getStudentExercises(student.path, exerciseNumbers)
 			const testResults = await testStudentExercises(student.path, exerciseFiles)
 
-			studentResults.push({
+            studentResults.push({
 				name: student.name,
 				folderPath: student.path,
 				testResults,

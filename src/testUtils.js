@@ -70,6 +70,8 @@ function _initSandbox() {
 		alert: mockAlert,
 		prompt: mockPrompt,
 
+        ..._getDeafultContext(),
+
 		// Setup variable tracking
 		declaredVariables: new Set(),
 		accessedVariables: new Set(),
@@ -131,6 +133,27 @@ function _getSideEffects() {
 			accessed: Array.from(context.accessedVariables),
 		},
 	}
+}
+
+function _getDeafultContext() {
+    return {
+        parseFloat,
+        parseInt,
+        isNaN,
+
+        Number,
+        Math,
+        String,
+        Boolean,
+        Object,
+        Array,
+        Date,
+        
+        setInterval,
+        clearInterval,
+        setTimeout,
+        clearTimeout,
+    }
 }
 
 // Check if any output contains text (case insensitive, flexible matching)

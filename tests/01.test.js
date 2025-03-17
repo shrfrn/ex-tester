@@ -2,9 +2,12 @@ import fs from 'fs'
 
 import { runScript } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
+import { stripComments } from '../src/fileUtils.js'
 
 export function test(studentFilePath) {
-    let studentCode = fs.readFileSync(studentFilePath, 'utf8')
+    let studentCode = stripComments(studentFilePath)
+    if (!studentCode) return { submitted: false }
+
     let collector = createTestCollector()
 
     const firstName = 'John'
@@ -66,7 +69,7 @@ export function test(studentFilePath) {
     collector.checkAndRecord('Outputs differ for different inputs', allOutputs.size === 3, 10)
 
     collector.checkAndRecord('fullName concatenation syntax correct', () => {
-        const regex = /fullName\s*=\s*firstName\s*[\+]\s*lastName/
+        const regex = /fullName\s*=\s*firstName\s*\+\s*['"][ ]['"]\s*\+\s*lastName/
         return regex.test(studentCode)
     }, 10)
 

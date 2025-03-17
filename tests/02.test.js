@@ -1,10 +1,11 @@
-import fs from 'fs'
-
 import { runScript } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
+import { stripComments } from '../src/fileUtils.js'
 
 export function test(studentFilePath) {
-    let studentCode = fs.readFileSync(studentFilePath, 'utf8')
+    let studentCode = stripComments(studentFilePath)
+    if (!studentCode) return { submitted: false }
+
     let collector = createTestCollector()
 
     const firstNumber = '10'
@@ -23,17 +24,17 @@ export function test(studentFilePath) {
 
     collector.checkAndRecord('Modulo operation performed', () => {
         return studentCode.includes('%') && 
-               result.allOutput.some(output => output.includes('%') && output.includes('1'))
+               result.allOutput.some(output => output.includes('1'))
     }, 10)
 
     collector.checkAndRecord('Division operation performed', () => {
         return studentCode.includes('/') && 
-               result.allOutput.some(output => output.includes('/') && output.includes('3.333'))
+               result.allOutput.some(output => output.includes('3.333'))
     }, 10)
 
     collector.checkAndRecord('Multiplication operation performed', () => {
         return studentCode.includes('*') && 
-               result.allOutput.some(output => output.includes('*') && output.includes('30'))
+               result.allOutput.some(output => output.includes('30'))
     }, 10)
 
     collector.checkAndRecord('User input converted to numbers', () => {
