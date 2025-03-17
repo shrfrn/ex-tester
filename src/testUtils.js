@@ -24,7 +24,7 @@ function runScript(code, inputs = []) {
 		results.success = false
 		results.error = error.message
 	} finally {
-		results = { ...results, ..._getSideEffects() }
+		results = { ...results, context, ..._getSideEffects() }
 		return results
 	}
 }

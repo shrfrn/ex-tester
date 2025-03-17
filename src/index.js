@@ -1,5 +1,6 @@
 import path from 'path'
 import promptSync from 'prompt-sync'
+import fs from 'fs'
 
 import { parseAssignmentFiles, findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
@@ -19,9 +20,9 @@ const main = async () => {
 	console.log('==============================\n')
 
 	// Get submissions folder from user
-	const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
-	const submissionsPath = cleanPath(rawSubmissionsPath)
-	// const submissionsPath = '../CaFeb25-ExerciseSubmission/{student:*}/Day1-10-ExRunner/**/ex'
+	// const rawSubmissionsPath = prompt('Enter the path to the student submissions folder: ')
+	// const submissionsPath = cleanPath(rawSubmissionsPath)
+	const submissionsPath = '../CaFeb25-ExerciseSubmission/{student:*}/Day1-10-ExRunner/**/ex'
 
 	if (!submissionsPath) {
 		console.error('No submissions path provided. Exiting.')
@@ -29,11 +30,12 @@ const main = async () => {
 	}
 
 	// Get exercise range from user
-	const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
-	if (!exerciseRangeInput) {
-		console.error('No exercise range provided. Exiting.')
-		return
-	}
+	const exerciseRangeInput = '1-2'
+	// const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
+	// if (!exerciseRangeInput) {
+	// 	console.error('No exercise range provided. Exiting.')
+	// 	return
+	// }
 
 	const exerciseNumbers = parseExerciseRange(exerciseRangeInput)
     const exerciseCount = exerciseNumbers.length
@@ -58,7 +60,11 @@ const main = async () => {
 		// Calculate scores for each student
 		calculateStudentScores(studentResults, exerciseCount)
         // console.log(studentResults.map(res => res.scores.finalScore))
-        console.log(studentResults[0])
+        
+		// Write student results to JSON file
+		const resultsPath = path.join(process.cwd(), 'student-results.json')
+		fs.writeFileSync(resultsPath, JSON.stringify(studentResults, null, 4))
+		console.log(`Results saved to: ${resultsPath}`)
 
 		// Generate and save report
 	} catch (error) {

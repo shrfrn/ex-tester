@@ -11,6 +11,8 @@ function createTestCollector() {
         results.count++
         results.maxScore += score
 
+        if (typeof condition === 'function') condition = condition()
+
         if (condition) {
             results.score += score
             results.passed.push({ description, score })

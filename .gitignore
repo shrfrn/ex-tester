@@ -22,3 +22,4 @@ coverage/
 # Generated reports
 student-evaluation-report.md 
 CaFeb25-ExerciseSubmission
+src/student-results.json

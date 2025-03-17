@@ -27,7 +27,7 @@ export function test(studentFilePath) {
             result.variables.accessed.includes('fullName'), 10)
 
     collector.checkAndRecord('fullName value is structured correctly', () => {
-        const fullNameValue = result.variables.values.fullName
+        const fullNameValue = result.context.fullName
         const nameOrderPattern = new RegExp(`^${firstName}.*${lastName}$`)
         return fullNameValue && nameOrderPattern.test(fullNameValue)
     }, 10)
@@ -41,8 +41,8 @@ export function test(studentFilePath) {
     collector.checkAndRecord('Output contains last name', 
         result.consoleOutput.some(output => output.includes(lastName)), 10)
 
-    collector.checkAndRecord('Valid greeting format', () => {
-        result.allOutput.some(output => {
+    const pass = collector.checkAndRecord('Valid greeting format', () => {
+        return result.allOutput.some(output => {
             const namePattern = new RegExp(`${firstName}\\s+${lastName}`)
             const hasCorrectNameFormat = namePattern.test(output)
             const hasAdditionalWord = output.split(/\s+/).length > 2

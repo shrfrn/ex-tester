@@ -2,7 +2,7 @@
   "name": "student-assignment-tester",
   "version": "1.0.0",
   "description": "Test suite for student JS assignments",
-  "main": "src/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",

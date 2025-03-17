@@ -62,5 +62,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...collector.getResults(), success: result.success, weight: 1 }
+    return { ...collector.getResults(), success: result.success, error: result.error, weight: 1 }
 } 
