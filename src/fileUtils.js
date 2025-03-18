@@ -76,12 +76,7 @@ export function stripComments(filePath) {
 			return ''
 		})
 
-		// Remove any empty lines created by comment removal and normalize whitespace
 		return strippedCode
-			.split('\n')
-			.map(line => line.trim())
-			.filter(line => line.length > 0)
-			.join('\n')
 	} catch (error) {
 		console.error(`Error reading or processing file ${filePath}:`, error)
 		return ''

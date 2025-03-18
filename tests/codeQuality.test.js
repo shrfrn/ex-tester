@@ -1,3 +1,24 @@
+import { stripComments } from "../src/fileUtils.js"
+
+export function validateCodeQuality(exerciseFile) {
+    const codeString = stripComments(exerciseFile)
+    if (exerciseFile.includes('Ido')) {
+        console.log(codeString)
+    }
+    const results = [
+        validateVarNames(codeString),
+        validateIndentation(codeString),
+        validateLineSpacing(codeString),
+        validateQuotes(codeString),
+        validateNoSemicolons(codeString),
+    ]
+
+	return {
+		score: results.reduce((acc, result) => acc + result.score, 0),
+		results,
+	}
+}
+
 export function validateVarNames(codeString) {
 	const variableDeclarations = [
 		// const UPPER_SNAKE_CASE = ...
@@ -30,7 +51,7 @@ export function validateVarNames(codeString) {
 	})
 
 	return {
-		isValid: violations.length === 0,
+		score: violations.length === 0 ? 0 : -5,
 		violations,
 	}
 }
@@ -77,8 +98,8 @@ export function validateIndentation(codeString) {
 	// If we couldn't determine an indent style, the file might be too simple
 	if (!indentStyle) {
 		return {
-			isValid: true,
-			message: "No indentation found in file"
+			score: 0,
+			violations,
 		}
 	}
 	
@@ -153,7 +174,7 @@ export function validateIndentation(codeString) {
 	}
 	
 	return {
-		isValid: violations.length === 0,
+		score: violations.length === 0 ? 0 : -5,
 		indentStyle,
 		indentSize,
 		violations
@@ -202,7 +223,7 @@ export function validateLineSpacing(codeString) {
 	}
 	
 	return {
-		isValid: violations.length === 0,
+		score: violations.length === 0 ? 0 : -2,
 		violations,
 		maxConsecutiveAllowed: MAX_CONSECUTIVE_LINES
 	}
@@ -239,7 +260,7 @@ export function validateQuotes(codeString) {
 	}
 	
 	return {
-		isValid: violations.length === 0,
+        score: violations.length === 0 ? 0 : -2,
 		violations
 	}
 }
@@ -304,8 +325,7 @@ export function validateNoSemicolons(codeString) {
 	}
 	
 	return {
-		isValid: violations.length === 0,
+		score: violations.length === 0 ? 0 : -2,
 		violations
 	}
 }
-

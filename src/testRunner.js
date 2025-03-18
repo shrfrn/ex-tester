@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { validateCodeQuality } from '../tests/codeQuality.test.js'
 
 export { 
     testStudentExercises,
@@ -28,6 +29,9 @@ async function runTests(exerciseId, exerciseFile) {
 
 	const { test } = await import(testScriptPath)
 	const results = test(exerciseFile)
+
+    const codeQuality = validateCodeQuality(exerciseFile)
+    results.codeQuality = codeQuality
 
 	return results
 }

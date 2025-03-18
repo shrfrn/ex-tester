@@ -99,15 +99,18 @@ function calculateStudentScores(studentResults, exerciseCount) {
 		for (const exercise of submittedExercises) {
 			const result = student.testResults[exercise]
 			if (result && typeof result.score === 'number' && typeof result.weight === 'number') {
+                const codeQualityFactor = (100 + result.codeQuality.score) / 100
+                result.score = Math.round(result.score * codeQualityFactor)
+
 				totalWeightedScore += result.score * result.weight
 				totalWeight += result.weight
                 maxScore += result.maxScore
 			}
 		}
-		
 		// Calculate final score
-		const exerciseScore = totalWeight > 0 ? totalWeightedScore / totalWeight : 0
-		const normalizedScore = maxScore > 0 ? Math.round((totalWeightedScore / maxScore) * 100) : 0
+		const exerciseScore = totalWeightedScore / totalWeight
+		const normalizedScore = Math.round((totalWeightedScore / maxScore) * 100)
+
 		const finalScore = submissionRate * normalizedScore
 		
 		// Add scores to student results
