@@ -5,15 +5,12 @@ import fs from 'fs'
 import { findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
 
+// TODO: Use terminal-kit for prompts and better output
+// TODO: Use command-line-args for command line arguments
+
 const prompt = promptSync({ sigint: true })
 
-// Helper function to clean up paths - remove quotes and trim whitespace
-const cleanPath = inputPath => {
-	if (!inputPath) return inputPath
-	return inputPath.replace(/^['"]|['"]$/g, '').trim()
-}
-
-const main = async () => {
+async function main() {
 	console.log('Student Assignment Testing Suite')
 	console.log('==============================\n')
 
@@ -65,6 +62,7 @@ const main = async () => {
 		console.log(`Results saved to: ${resultsPath}`)
 
 		// Generate and save report
+        // TODO: Generate report
 	} catch (error) {
 		console.error('Error during evaluation:', error)
 	}
@@ -149,5 +147,4 @@ function parseExerciseRange(input) {
 	return [...new Set(numbers)].sort((a, b) => a - b)
 }
 
-// Start the program
 main()

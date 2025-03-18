@@ -1,10 +1,9 @@
 import { stripComments } from "../src/fileUtils.js"
 
+// TODO: Add more tests for code quality - check codeAnalyzer.js for more tests
+
 export function validateCodeQuality(exerciseFile) {
     const codeString = stripComments(exerciseFile)
-    if (exerciseFile.includes('Ido')) {
-        console.log(codeString)
-    }
     const results = [
         validateVarNames(codeString),
         validateIndentation(codeString),
@@ -18,6 +17,8 @@ export function validateCodeQuality(exerciseFile) {
 		results,
 	}
 }
+
+// TODO: Improve validateVarNames() function
 
 export function validateVarNames(codeString) {
 	const variableDeclarations = [
@@ -55,6 +56,8 @@ export function validateVarNames(codeString) {
 		violations,
 	}
 }
+
+// TODO: Improve validateIndentation() function
 
 export function validateIndentation(codeString) {
 	const lines = codeString.split('\n')
