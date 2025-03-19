@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 // Generate markdown report from test results
 const generateReport = (studentResults) => {
@@ -33,8 +34,8 @@ const generateReport = (studentResults) => {
       report += `## ${category} (${getCategoryScoreRange(category)})\n\n`
       
       // Create table header
-      report += '| Name | Exercises Submitted | Submission % | Success Rate | Score | Folder |\n'
-      report += '|------|---------------------|-------------|-------------|-------|--------|\n'
+      report += '| Name | Exercises Submitted | Submission % | Success Rate | Score |\n'
+      report += '|------|---------------------|-------------|-------------|-------|\n'
       
       // Add each student to the table
       for (const student of studentsInCategory) {
@@ -45,9 +46,8 @@ const generateReport = (studentResults) => {
         const submissionRate = `${Math.round(student.scores.submissionRate * 100)}%`
         const successRate = `${Math.round(student.scores.successRate * 100)}% (${student.scores.successfulCount})`
         const score = student.scores.normalizedScore
-        const link = `[Folder](file://${student.folderPath})`
         
-        report += `| ${student.name} | ${exercisesSubmitted} | ${submissionRate} | ${successRate} | ${score} | ${link} |\n`
+        report += `| ${student.name} | ${exercisesSubmitted} | ${submissionRate} | ${successRate} | ${score} |\n`
       }
       
       report += '\n'
