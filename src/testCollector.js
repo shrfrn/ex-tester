@@ -1,4 +1,4 @@
-function createTestCollector() {
+export function createTestCollector() {
     const results = {
         passed: [],
         failed: [],
@@ -31,5 +31,3 @@ function createTestCollector() {
 
     return { checkAndRecord, getResults }
 }
-
-export { createTestCollector } 
