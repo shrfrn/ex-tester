@@ -14,6 +14,16 @@ export function htmlDetailed(studentResults) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${student.name} - Detailed Report</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block)
+      })
+    })
+  </script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -79,11 +89,15 @@ export function htmlDetailed(studentResults) {
       margin: 30px 0;
     }
     pre {
-      background-color: #f5f5f5;
-      padding: 15px;
+      margin: 0;
+      padding: 0;
       border-radius: 4px;
       overflow-x: auto;
-      border: 1px solid #ddd;
+    }
+    pre code {
+      padding: 15px !important;
+      border-radius: 4px;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
     }
     code {
       font-family: Consolas, Monaco, 'Andale Mono', monospace;
@@ -91,14 +105,10 @@ export function htmlDetailed(studentResults) {
       padding: 2px 4px;
       border-radius: 3px;
     }
-    .code-block {
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: 4px;
-      overflow-x: auto;
+    .code-container {
+      margin-top: 10px;
       border: 1px solid #ddd;
-      white-space: pre;
-      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -174,7 +184,10 @@ export function htmlDetailed(studentResults) {
       <tbody>
         <tr>
 `
-            
+            // TODO: scorePercentage incorrect - see Tom Shahar's report ex 01
+            // TODO: weighted score needs to be tested
+            // TODO: code quality details are not shown
+
             const scorePercentage = result.score ? `${result.score}%` : 'N/A'
             const codeQualityScore = `${100 + result.codeQuality.score}%`
             const successCheckbox = result.success ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
@@ -195,7 +208,9 @@ export function htmlDetailed(studentResults) {
                 html += `
     <details class="indent-1">
       <summary><strong>Code</strong></summary>
-      <div class="code-block">${result.studentCode.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+      <div class="code-container">
+        <pre><code class="language-javascript">${result.studentCode.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+      </div>
     </details>
 `
             }
@@ -307,6 +322,16 @@ export function htmlDetailed(studentResults) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Students - Detailed Report</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block)
+      })
+    })
+  </script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -397,11 +422,15 @@ export function htmlDetailed(studentResults) {
       margin: 30px 0;
     }
     pre {
-      background-color: #f5f5f5;
-      padding: 15px;
+      margin: 0;
+      padding: 0;
       border-radius: 4px;
       overflow-x: auto;
-      border: 1px solid #ddd;
+    }
+    pre code {
+      padding: 15px !important;
+      border-radius: 4px;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
     }
     code {
       font-family: Consolas, Monaco, 'Andale Mono', monospace;
@@ -409,14 +438,10 @@ export function htmlDetailed(studentResults) {
       padding: 2px 4px;
       border-radius: 3px;
     }
-    .code-block {
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: 4px;
-      overflow-x: auto;
+    .code-container {
+      margin-top: 10px;
       border: 1px solid #ddd;
-      white-space: pre;
-      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+      border-radius: 4px;
     }
   </style>
 </head>

@@ -54,7 +54,11 @@ Exercises Submitted | Submission % | Success Rate | Score |
             report += `| score | code quality | success | correct output |\n`
             report += `|----|---|---|---|\n`
             
-            const scorePercentage = result.score ? `${result.score}%` : 'N/A'
+            // TODO: scorePercentage incorrect - see Tom Shahar's report ex 01
+            // TODO: weighted score needs to be tested
+            // TODO: code quality details are not shown
+            
+            const scorePercentage = `${result.normalizedScore}%`
             const codeQualityScore = `${100 + result.codeQuality.score}%`
             const successCheckbox = result.success ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
             const correctOutputCheckbox = result.correctOutput ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
