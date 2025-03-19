@@ -2,75 +2,115 @@ import fs from 'fs'
 import path from 'path'
 
 // Generate markdown report from test results
-const generateReport = (students, submissionPath, exerciseRange) => {
-  // Categorize students into 5 stars to 1 star
+const generateReport = (studentResults) => {
+  // Categorize students based on normalizedScore
   const categories = {
-    '5★': [],
-    '4★': [],
-    '3★': [],
-    '2★': [],
-    '1★': []
+    '⭐⭐⭐⭐⭐': [],
+    '⭐⭐⭐⭐': [],
+    '⭐⭐⭐': [],
+    '⭐⭐': [],
+    '⭐': [],
+    'No Stars': []
   }
   
-  for (const student of students) {
-    const category = calculateStudentCategory(student)
-    categories[category].push(student)
+  for (const student of studentResults) {
+    const score = student.scores.normalizedScore
+    
+    if (score >= 91) categories['⭐⭐⭐⭐⭐'].push(student)
+    else if (score >= 81) categories['⭐⭐⭐⭐'].push(student)
+    else if (score >= 71) categories['⭐⭐⭐'].push(student)
+    else if (score >= 61) categories['⭐⭐'].push(student)
+    else if (score >= 51) categories['⭐'].push(student)
+    else categories['No Stars'].push(student)
   }
   
   // Start building the report
   let report = '# Student Assignment Evaluation Report\n\n'
   
-  // Add exercise range information
-  report += `## Exercises evaluated: ${exerciseRange[0]} to ${exerciseRange[1]}\n\n`
-  
   // Generate report sections for each category
   for (const [category, studentsInCategory] of Object.entries(categories)) {
     if (studentsInCategory.length > 0) {
-      report += `## ${category} Students\n\n`
+      report += `## ${category} (${getCategoryScoreRange(category)})\n\n`
       
       // Create table header
-      report += '| Student Name | Exercises Submitted | Run % | Correctness % | Code Quality | Link |\n'
-      report += '|--------------|---------------------|-------|---------------|--------------|------|\n'
+      report += '| Name | Exercises Submitted | Submission % | Success Rate | Score | Folder |\n'
+      report += '|------|---------------------|-------------|-------------|-------|--------|\n'
       
       // Add each student to the table
       for (const student of studentsInCategory) {
-        const exercisesSubmitted = student.exercisesSubmitted.join(', ')
-        const runPercent = `${student.runPercent}%`
-        const correctPercent = `${student.correctPercent}%`
-        const codeQuality = `${student.codeQuality}/5.0`
+        // Format exercises submitted as ranges
+        const exercises = formatExerciseList(Object.keys(student.testResults).map(Number).sort((a, b) => a - b))
+        
+        const exercisesSubmitted = `${exercises} (${student.scores.totalExercises})`
+        const submissionRate = `${Math.round(student.scores.submissionRate * 100)}%`
+        const successRate = `${Math.round(student.scores.successRate * 100)}% (${student.scores.successfulCount})`
+        const score = student.scores.normalizedScore
         const link = `[Folder](file://${student.folderPath})`
         
-        report += `| ${student.name} | ${exercisesSubmitted} | ${runPercent} | ${correctPercent} | ${codeQuality} | ${link} |\n`
+        report += `| ${student.name} | ${exercisesSubmitted} | ${submissionRate} | ${successRate} | ${score} | ${link} |\n`
       }
       
       report += '\n'
     }
   }
   
+  // Save the report
+  const outputPath = path.join(process.cwd(), 'student-report.md')
+  fs.writeFileSync(outputPath, report)
+  console.log(`Report saved to: ${outputPath}`)
+  
   return report
 }
 
-// Calculate student category based on their performance
-const calculateStudentCategory = (student) => {
-  // Calculate a score from 0-100 based on correctness and code quality
-  const correctnessScore = student.correctPercent
-  const qualityScore = student.codeQuality * 20 // Convert 1-5 to 20-100
+// Format a list of exercise numbers into a compact representation (e.g. [1,2,3,5,6,7,10] -> "1-3, 5-7, 10")
+function formatExerciseList(exercises) {
+  if (!exercises || exercises.length === 0) return ''
   
-  // Weight: 70% correctness, 30% quality
-  const totalScore = (correctnessScore * 0.7) + (qualityScore * 0.3)
+  const ranges = []
+  let rangeStart = exercises[0]
+  let rangeEnd = exercises[0]
   
-  // Assign category based on score
-  if (totalScore >= 90) return '5★'
-  if (totalScore >= 80) return '4★'
-  if (totalScore >= 70) return '3★'
-  if (totalScore >= 60) return '2★'
-  return '1★'
+  for (let i = 1; i < exercises.length; i++) {
+    if (exercises[i] === rangeEnd + 1) {
+      rangeEnd = exercises[i]
+    } else {
+      // End of a range
+      if (rangeStart === rangeEnd) {
+        ranges.push(`${rangeStart}`)
+      } else {
+        ranges.push(`${rangeStart}-${rangeEnd}`)
+      }
+      rangeStart = rangeEnd = exercises[i]
+    }
+  }
+  
+  // Add the last range
+  if (rangeStart === rangeEnd) {
+    ranges.push(`${rangeStart}`)
+  } else {
+    ranges.push(`${rangeStart}-${rangeEnd}`)
+  }
+  
+  return ranges.join(', ')
 }
 
 // Save report to file
 const saveReport = (report, outputPath) => {
   fs.writeFileSync(outputPath, report)
   console.log(`Report saved to: ${outputPath}`)
+}
+
+// Helper function to get score range for a category
+function getCategoryScoreRange(category) {
+  switch(category) {
+    case '⭐⭐⭐⭐⭐': return '91-100'
+    case '⭐⭐⭐⭐': return '81-90'
+    case '⭐⭐⭐': return '71-80'
+    case '⭐⭐': return '61-70'
+    case '⭐': return '51-60'
+    case 'No Stars': return 'Below 51'
+    default: return ''
+  }
 }
 
 export {

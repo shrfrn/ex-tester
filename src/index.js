@@ -4,6 +4,7 @@ import fs from 'fs'
 
 import { findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
+import { generateReport } from './reportGenerator.js'
 
 // TODO: Use terminal-kit for prompts and better output
 // TODO: Use command-line-args for command line arguments
@@ -59,10 +60,9 @@ async function main() {
 		// Write student results to JSON file
 		const resultsPath = path.join(process.cwd(), 'student-results.json')
 		fs.writeFileSync(resultsPath, JSON.stringify(studentResults, null, 4))
-		console.log(`Results saved to: ${resultsPath}`)
 
 		// Generate and save report
-        // TODO: Generate report
+        generateReport(studentResults)
 	} catch (error) {
 		console.error('Error during evaluation:', error)
 	}
@@ -109,14 +109,14 @@ function calculateStudentScores(studentResults, exerciseCount) {
 		const exerciseScore = totalWeightedScore / totalWeight
 		const normalizedScore = Math.round((totalWeightedScore / maxScore) * 100)
 
-		const finalScore = submissionRate * normalizedScore
+		// const finalScore = submissionRate * normalizedScore
 		
 		// Add scores to student results
 		student.scores = {
 			submissionRate,
 			exerciseScore,
 			normalizedScore,
-			finalScore,
+			// finalScore,
 			submittedCount: submittedExercises.length,
 			totalExercises,
 			successfulCount: successfulExecutions.length,
