@@ -92,14 +92,14 @@ Exercises Submitted | Submission % | Success Rate | Score |
     for (let i = 0; i < studentResults.length; i++) {
         const student = studentResults[i]
         const sanitizedName = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
-        const outputPath = path.join(process.cwd(), `${sanitizedName}-detailed-report.md`)
+        const outputPath = path.join(process.cwd(), 'detailed-reports', `${sanitizedName}-detailed-report.md`)
         fs.writeFileSync(outputPath, reports[i])
         console.log(`Detailed report for ${student.name} saved to: ${outputPath}`)
     }
     
     // Combine all reports into one file
     const combinedReport = reports.join('\n\n')
-    const combinedOutputPath = path.join(process.cwd(), 'all-students-detailed-report.md')
+    const combinedOutputPath = path.join(process.cwd(), 'detailed-reports', 'all-students-detailed-report.md')
     fs.writeFileSync(combinedOutputPath, combinedReport)
     console.log(`Combined detailed report saved to: ${combinedOutputPath}`)
     
