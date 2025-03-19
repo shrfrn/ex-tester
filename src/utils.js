@@ -1,5 +1,5 @@
 
-// Format a list of exercise numbers into a compact representation (e.g. [1,2,3,5,6,7,10] -> "1-3, 5-7, 10")
+// Format a list of numbers into a compact representation (e.g. [1,2,3,5,6,7,10] -> "1-3, 5-7, 10")
 export function compactNumberList(nums) {
 	if (!nums || nums.length === 0) return ''
 
@@ -30,3 +30,25 @@ export function compactNumberList(nums) {
 
 	return ranges.join(', ')
 }
+
+// Format a compact representation of numbers into an expanded list (e.g. "1-3, 5-7, 10" -> [1,2,3,5,6,7,10])
+export function parseNumRange(input) {
+	const numbers = []
+	const rangeRegex = /(\d+)\s*-\s*(\d+)|(\d+)/g
+
+	for (const match of input.matchAll(rangeRegex)) {
+		const [, rangeStart, rangeEnd, singleNum] = match
+		if (rangeStart) {
+			// Handle range
+			for (let i = Number(rangeStart); i <= Number(rangeEnd); i++) {
+				numbers.push(i)
+			}
+		} else {
+			// Handle single number
+			numbers.push(Number(singleNum))
+		}
+	}
+
+	return [...new Set(numbers)].sort((a, b) => a - b)
+}
+

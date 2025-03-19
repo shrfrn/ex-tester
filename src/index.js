@@ -5,6 +5,7 @@ import fs from 'fs'
 import { findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { testStudentExercises } from './testRunner.js'
 import { generateReport } from './reportGenerator.js'
+import { parseNumRange } from './utils.js'
 
 // TODO: Use terminal-kit for prompts and better output
 // TODO: Use command-line-args for command line arguments
@@ -33,7 +34,7 @@ async function main() {
 	// 	return
 	// }
 
-	const exerciseNumbers = parseExerciseRange(exerciseRangeInput)
+	const exerciseNumbers = parseNumRange(exerciseRangeInput)
     const exerciseCount = exerciseNumbers.length
 
 	try {
@@ -125,26 +126,6 @@ function calculateStudentScores(studentResults, exerciseCount) {
 	}
 	
 	return studentResults
-}
-
-function parseExerciseRange(input) {
-	const numbers = []
-	const rangeRegex = /(\d+)\s*-\s*(\d+)|(\d+)/g
-
-	for (const match of input.matchAll(rangeRegex)) {
-		const [, rangeStart, rangeEnd, singleNum] = match
-		if (rangeStart) {
-			// Handle range
-			for (let i = Number(rangeStart); i <= Number(rangeEnd); i++) {
-				numbers.push(i)
-			}
-		} else {
-			// Handle single number
-			numbers.push(Number(singleNum))
-		}
-	}
-
-	return [...new Set(numbers)].sort((a, b) => a - b)
 }
 
 main()
