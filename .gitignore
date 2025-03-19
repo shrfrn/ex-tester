@@ -26,7 +26,9 @@ src/student-results.json
 src/student-report.md
 src/student-report.csv
 **/*-detailed-report.md
+**/*-detailed-report.html
 src/_detailed-report copy.md
 src/_detailed-report.md
 src/reports/_detailed-report copy.md
 src/student-report.html
+src/ex-tester.code-workspace
