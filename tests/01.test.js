@@ -8,43 +8,43 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let collector = createTestCollector()
+    let { checkAndRecord, getResults } = createTestCollector()
 
     const firstName = 'John'
     const lastName = 'Smith'
     const result = runScript(studentCode, [firstName, lastName])
 
-    collector.checkAndRecord('Code executes successfully', result.success, 20)
+    checkAndRecord('Code executes successfully', result.success, 20)
 
-    collector.checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
-    collector.checkAndRecord('At least two variables store prompt results', () => {
+    checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
+    checkAndRecord('At least two variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
         const matches = studentCode.match(promptPattern) || []
         return matches.length >= 2
     }, 10)
 
-    collector.checkAndRecord('fullName variable declared', 
+    checkAndRecord('fullName variable declared', 
             result.variables.declared.includes('fullName'), 10)
 
-    collector.checkAndRecord('fullName variable accessed', 
+    checkAndRecord('fullName variable accessed', 
             result.variables.accessed.includes('fullName'), 10)
 
-    collector.checkAndRecord('fullName value is structured correctly', () => {
+    checkAndRecord('fullName value is structured correctly', () => {
         const fullNameValue = result.context.fullName
         const nameOrderPattern = new RegExp(`^${firstName}.*${lastName}$`)
         return fullNameValue && nameOrderPattern.test(fullNameValue)
     }, 10)
 
-    collector.checkAndRecord('Output method used', 
+    checkAndRecord('Output method used', 
             result.callCounts.alert + result.callCounts.consoleLog > 0, 10)
 
-    collector.checkAndRecord('Output contains first name', 
+    checkAndRecord('Output contains first name', 
         result.consoleOutput.some(output => output.includes(firstName)), 10)
 
-    collector.checkAndRecord('Output contains last name', 
+    checkAndRecord('Output contains last name', 
         result.consoleOutput.some(output => output.includes(lastName)), 10)
 
-    const pass = collector.checkAndRecord('Valid greeting format', () => {
+    const pass = checkAndRecord('Valid greeting format', () => {
         return result.allOutput.some(output => {
             const namePattern = new RegExp(`${firstName}\\s+${lastName}`)
             const hasCorrectNameFormat = namePattern.test(output)
@@ -66,12 +66,12 @@ export function test(studentFilePath) {
         allOutputs.add(JSON.stringify(result.allOutput))
     })
 
-    collector.checkAndRecord('Outputs differ for different inputs', allOutputs.size === 3, 10)
+    checkAndRecord('Outputs differ for different inputs', allOutputs.size === 3, 10)
 
-    collector.checkAndRecord('fullName concatenation syntax correct', () => {
+    checkAndRecord('fullName concatenation syntax correct', () => {
         const regex = /fullName\s*=\s*firstName\s*\+\s*['"][ ]['"]\s*\+\s*lastName/
         return regex.test(studentCode)
     }, 10)
 
-    return { ...collector.getResults(), success: result.success, weight: 1 }
+    return { ...getResults(), success: result.success, weight: 1, studentCode }
 }

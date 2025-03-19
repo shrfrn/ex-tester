@@ -27,6 +27,7 @@ async function testStudentExercises(studentFolder, exerciseFiles) {
 async function runTests(exerciseId, exerciseFile) {
 	const testScriptPath = '../tests/' + String(exerciseId).padStart(2, '0') + '.test.js'
 
+    console.log('Running tests ', testScriptPath)
 	const { test } = await import(testScriptPath)
 	const results = test(exerciseFile)
 

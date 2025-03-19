@@ -62,8 +62,9 @@ Exercises Submitted | Submission % | Success Rate | Score |
             report += `| ${scorePercentage} | ${codeQualityScore} | ${successCheckbox} | ${correctOutputCheckbox} |\n\n`
             
             // Add code section if available
-            if (result.code) {
-                report += `<details class="indent-1">\n<summary>Code</summary>\n\n\`\`\`js\n${result.code}\n\`\`\`\n</details>\n\n`
+            console.log(result)
+            if (result.studentCode) {
+                report += `<details class="indent-1">\n<summary>Code</summary>\n\n\`\`\`js\n${result.studentCode.trim()}\n\`\`\`\n</details>\n\n`
             }
             
             // Add failed tests section if available
