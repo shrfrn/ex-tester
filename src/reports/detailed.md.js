@@ -55,20 +55,34 @@ Exercises Submitted | Submission % | Success Rate | Score |
             report += `|----|---|---|---|\n`
             
             const scorePercentage = result.score ? `${result.score}%` : 'N/A'
-            const codeQualityScore = result.codeQuality && result.codeQuality.score ? `${result.codeQuality.score}%` : 'N/A'
+            const codeQualityScore = `${100 + result.codeQuality.score}%`
             const successCheckbox = result.success ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
             const correctOutputCheckbox = result.correctOutput ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
             
             report += `| ${scorePercentage} | ${codeQualityScore} | ${successCheckbox} | ${correctOutputCheckbox} |\n\n`
             
             // Add code section if available
-            console.log(result)
             if (result.studentCode) {
-                report += `<details class="indent-1">\n<summary>Code</summary>\n\n\`\`\`js\n${result.studentCode.trim()}\n\`\`\`\n</details>\n\n`
+                report += `<details class="indent-1">\n<summary><strong>Code</strong></summary>\n\n\`\`\`js\n${result.studentCode.trim()}\n\`\`\`\n</details>\n\n`
             }
             
             // Add failed tests section if available
-            if (result.failedTests && result.failedTests.length > 0) {
+            if (result.failed && result.failed.length > 0) {
+                const totalTests = (result.passed ? result.passed.length : 0) + result.failed.length
+                const failedCount = result.failed.length
+                const penaltyPoints = result.failed.reduce((sum, test) => sum + (test.score || 0), 0)
+                
+                report += `<details class="indent-1">\n<summary><strong>${failedCount} of ${totalTests} tests failed - <code>${penaltyPoints} points</code></strong></summary>\n\n`
+                report += `| test | penalty |\n| --- | --- |\n`
+                
+                for (const test of result.failed) {
+                    report += `| ${test.description} | ${test.score} |\n`
+                }
+                
+                report += `</details>\n`
+            }
+            // Fallback to the original failedTests implementation if the new format isn't available
+            else if (result.failedTests && result.failedTests.length > 0) {
                 const totalTests = result.totalTests || result.failedTests.length
                 const failedCount = result.failedTests.length
                 const penaltyPoints = result.failedTests.reduce((sum, test) => sum + (test.penalty || 0), 0)
