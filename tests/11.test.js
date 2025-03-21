@@ -8,8 +8,6 @@ export function test(studentFilePath) {
 
     let { checkAndRecord, getResults } = createTestCollector()
 
-    checkAndRecord('Code executes successfully', result.success, 20)
-
     // Check variable initialization
     checkAndRecord('Initializes currBalance with 1000', () => {
         return /currBalance\s*=\s*1000/.test(studentCode)
@@ -23,6 +21,8 @@ export function test(studentFilePath) {
     const correctPIN = '0796'
     const withdrawAmount = '300'
     const result = runScript(studentCode, [correctPIN, withdrawAmount])
+
+    checkAndRecord('Code executes successfully', result.success, 20)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     
