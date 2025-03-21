@@ -49,7 +49,7 @@ export function mdOverview(studentResults) {
 						.sort((a, b) => a - b)
 				)
 
-				const exercisesSubmitted = `${exercises} (${student.scores.totalExercises})`
+				const exercisesSubmitted = `${exercises} (${Object.keys(student.testResults).length})`
 				const submissionRate = `${Math.round(student.scores.submissionRate * 100)}%`
 				const successRate = `${Math.round(student.scores.successRate * 100)}% (${student.scores.successfulCount})`
 				const score = student.scores.normalizedScore

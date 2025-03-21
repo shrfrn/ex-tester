@@ -62,7 +62,7 @@ function promptInput() {
 	}
 
 	// Get exercise range from user
-	const exerciseRangeInput = '1-2'
+	const exerciseRangeInput = '1-5, 7-13'
 	// const exerciseRangeInput = prompt('Enter the range of exercises to test (e.g., 1-10): ')
 	// if (!exerciseRangeInput) {
 	// 	console.error('No exercise range provided. Exiting.')
