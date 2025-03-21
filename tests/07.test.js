@@ -25,8 +25,9 @@ export function test(studentFilePath) {
     }, 10)
 
     checkAndRecord('User input converted to numbers', () => {
-        const conversionPattern = /parseInt|\+[\s]*prompt/g
-        return conversionPattern.test(studentCode)
+        const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
+        const matches = studentCode.match(conversionPattern) || []
+        return matches.length >= 2
     }, 10)
 
     checkAndRecord('Addition operation performed', () => {
