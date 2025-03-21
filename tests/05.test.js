@@ -52,9 +52,10 @@ export function test(studentFilePath) {
     checkAndRecord('Uses numeric operations', () => numericJoinCheck(), 10)
     
     // Bonus check - converting inputs to numbers
-    checkAndRecord('Bonus: Converts inputs to numbers', () => {
-        const conversionPattern = /parseInt|\+[\s]*prompt/
-        return conversionPattern.test(studentCode) && numericJoinCheck()
+    checkAndRecord('User input converted to numbers', () => {
+        const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
+        const matches = studentCode.match(conversionPattern) || []
+        return matches.length >= 3
     }, 10)
 
     const testCases = [

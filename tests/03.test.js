@@ -30,7 +30,7 @@ export function test(studentFilePath) {
     }, 20)
 
     checkAndRecord('User input converted to a number', () => {
-        const conversionPattern = /parseInt|\+[\s]*prompt/
+        const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
         return conversionPattern.test(studentCode)
     }, 10)
 
