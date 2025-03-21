@@ -1,4 +1,4 @@
-import { runScript, runFunction } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -13,18 +13,8 @@ export function test(studentFilePath) {
 
     checkAndRecord('Code executes successfully', result.success, 20)
     
-    checkAndRecord('Function defined correctly', () => {
-        return typeof result.context.greetUser === 'function'
-    }, 10)
-    
-    checkAndRecord('Function has correct name', () => {
-        return /function\s+greetUser\s*\(/.test(studentCode)
-    }, 10)
-    
-    checkAndRecord('Function accepts parameter', () => {
-        const paramPattern = /function\s+greetUser\s*\(\s*([a-zA-Z0-9_$]+)\s*\)/
-        const matches = studentCode.match(paramPattern)
-        return matches && matches.length > 1
+    checkAndRecord('Function defined correctly with one parameter', () => {
+        return hasFunctionWithSignature('greetUser', 1)
     }, 10)
     
     // Get the parameter name to check it's used
