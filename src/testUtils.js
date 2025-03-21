@@ -1,19 +1,10 @@
 import vm from 'vm'
 import { mockPrompt, mockAlert, mockConsoleLog, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getCallCounts } from './mockBrowser.js'
 
-export { 
-    runScript, 
-    runFunction,
-    outputContains, 
-    outputMatches, 
-    outputContainsAll, 
-    outputContainsNumber 
-}
-
 let context = null
 
 // Run a student's code in a sandbox environment
-function runScript(code, inputs = []) {
+export function runScript(code, inputs = []) {
 	let results = {}
 
 	try {
@@ -30,7 +21,7 @@ function runScript(code, inputs = []) {
 }
 
 // Run a student's code in a sandbox environment
-function runFunction(functionName, inputs = []) {
+export function runFunction(functionName, inputs = []) {
 	if (!context) throw new Error('Context not initialized')
 	if (!context[functionName]) throw new Error(`Function ${functionName} not found`)
 
@@ -157,23 +148,23 @@ function _getDeafultContext() {
 }
 
 // Check if any output contains text (case insensitive, flexible matching)
-function outputContains(outputs, text) {
+export function outputContains(outputs, text) {
 	const lowerText = text.toLowerCase()
 	return outputs.some(output => output.toLowerCase().includes(lowerText))
 }
 
 // Check if any output matches a regular expression pattern
-function outputMatches(outputs, pattern) {
+export function outputMatches(outputs, pattern) {
 	return outputs.some(output => pattern.test(output))
 }
 
 // Check if outputs contain all required texts (with flexible matching)
-function outputContainsAll(outputs, requiredTexts) {
+export function outputContainsAll(outputs, requiredTexts) {
 	return requiredTexts.every(text => outputContains(outputs, text))
 }
 
 // Check if output contains any number close to the expected value (within tolerance)
-function outputContainsNumber(outputs, expectedNumber, tolerance = 0.01) {
+export function outputContainsNumber(outputs, expectedNumber, tolerance = 0.01) {
 	// Extract all numbers from outputs
 	const numbers = []
 	outputs.forEach(output => {
@@ -184,4 +175,28 @@ function outputContainsNumber(outputs, expectedNumber, tolerance = 0.01) {
 	})
 
 	return numbers.some(number => Math.abs(number - expectedNumber) <= tolerance)
+}
+
+// Check if a function with the specified name and parameter count exists in the code
+export function hasFunctionWithSignature(functionName, expectedParamCount) {
+    // Check if the context has been initialized
+    if (!context) throw new Error('Context not initialized')
+
+    // Check if the function exists in the context
+    if (typeof context[functionName] !== 'function') return false
+    
+    // Get the function's string representation
+    const functionStr = context[functionName].toString()
+    
+    // Extract parameter list using regex
+    const paramListMatch = functionStr.match(/function\s*[^(]*\(\s*([^)]*)\s*\)/) || 
+                           functionStr.match(/\(\s*([^)]*)\s*\)\s*=>/)
+    
+    if (!paramListMatch) return false
+    
+    // Count parameters (handling empty parameter list)
+    const paramList = paramListMatch[1].trim()
+    const actualParamCount = paramList === '' ? 0 : paramList.split(',').length
+    
+    return actualParamCount === expectedParamCount
 }
