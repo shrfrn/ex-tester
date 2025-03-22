@@ -95,9 +95,10 @@ function _initSandbox() {
 	}
 
 	// Create a handler for the vm context
+    const excludedProps = ['console', 'alert', 'prompt', 'document', 'window', 'declaredVariables', 'accessedVariables']
 	const handler = {
 		get: function (target, prop) {
-			if (typeof prop === 'string' && !prop.startsWith('_') && !['console', 'alert', 'prompt', 'document', 'window'].includes(prop)) {
+			if (typeof prop === 'string' && !prop.startsWith('_') && !excludedProps.includes(prop)) {
 				target.accessedVariables.add(prop)
 			}
 			return target[prop]

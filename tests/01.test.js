@@ -1,5 +1,3 @@
-import fs from 'fs'
-
 import { runScript } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
