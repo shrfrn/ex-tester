@@ -10,28 +10,29 @@ export function test(studentFilePath) {
 
     // Test that the script runs without errors
     const result = runScript(studentCode)
-    checkAndRecord('Code executes successfully', result.success, 10)
+    checkAndRecord('Code executes successfully', result.success, 20)
 
-    // Check that calculateSum function exists with 2 parameters
-    const functionExists = hasFunctionWithSignature('calculateSum', 2)
-    checkAndRecord('Function calculateSum is defined correctly with 2 parameters', () => {
+    // Check that isEven function exists with 1 parameter
+    const functionExists = hasFunctionWithSignature('isEven', 1)
+    checkAndRecord('Function isEven is defined correctly with 1 parameter', () => {
         return functionExists
     }, 20)
 
     // Define test cases - each with input, expected output and description
     const testCases = [
-        { input: [5, 3], expected: 8, description: 'Function correctly adds positive numbers', points: 10 },
-        { input: [-10, 4], expected: -6, description: 'Function correctly adds a negative and positive number', points: 10 },
-        { input: [-7, -3], expected: -10, description: 'Function correctly adds two negative numbers', points: 10 },
-        { input: [0, 5], expected: 5, description: 'Function correctly handles zero', points: 10 },
-        { input: [2.5, 3.5], expected: 6, description: 'Function correctly adds decimal numbers', points: 10 }
+        { input: [4], expected: true, description: 'Function correctly identifies even positive numbers', points: 10 },
+        { input: [7], expected: false, description: 'Function correctly identifies odd positive numbers', points: 10 },
+        { input: [0], expected: true, description: 'Function correctly identifies zero as even', points: 10 },
+        { input: [-2], expected: true, description: 'Function correctly identifies even negative numbers', points: 10 },
+        { input: [-5], expected: false, description: 'Function correctly identifies odd negative numbers', points: 10 },
+        { input: [3.5], expected: false, description: 'Function correctly handles decimal numbers', points: 10 }
     ]
 
     // Run all test cases with a generic runner
     testCases.forEach(testCase => {
         // If function exists, run the actual test, otherwise return false
         const testResult = functionExists 
-            ? runFunction('calculateSum', testCase.input)
+            ? runFunction('isEven', testCase.input)
             : { success: false, returnValue: null }
         
         checkAndRecord(testCase.description, () => {
