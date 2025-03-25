@@ -9,7 +9,7 @@ export function test(studentFilePath) {
     let { checkAndRecord, getResults } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode)
+    const result = runScript(studentCode, ["TestUser", "quit", "80", "85", "90"])
     checkAndRecord('Code executes successfully', result.success, 10)
 
     // Check that required functions exist with correct parameters
@@ -20,25 +20,11 @@ export function test(studentFilePath) {
     const forEachExists = hasFunctionWithSignature('forEach', 2)
     
     // Check function definitions
-    checkAndRecord('Function createStudents is defined correctly', () => {
-        return createStudentsExists
-    }, 10)
-    
-    checkAndRecord('Function calcAverageGrade is defined correctly', () => {
-        return calcAverageGradeExists
-    }, 10)
-    
-    checkAndRecord('Function findWorstStudent is defined correctly', () => {
-        return findWorstStudentExists
-    }, 10)
-    
-    checkAndRecord('Function factorGrades is defined correctly', () => {
-        return factorGradesExists
-    }, 10)
-    
-    checkAndRecord('Function forEach is defined correctly', () => {
-        return forEachExists
-    }, 10)
+    checkAndRecord('Function createStudents is defined correctly',  createStudentsExists, 10)
+    checkAndRecord('Function calcAverageGrade is defined correctly', calcAverageGradeExists, 10)
+    checkAndRecord('Function findWorstStudent is defined correctly', findWorstStudentExists, 10)
+    checkAndRecord('Function factorGrades is defined correctly', factorGradesExists, 10)
+    checkAndRecord('Function forEach is defined correctly', forEachExists, 10)
 
     // Test createStudents function with simulated input
     // Per exercise instructions:
@@ -48,18 +34,18 @@ export function test(studentFilePath) {
         "John",        // First student name
         "Alice",       // Second student name
         "quit",        // Stop collecting names
+
         // Now grades for each student (3 per student)
         "80", "85", "90",  // John's grades
         "75", "70", "80"   // Alice's grades
     ]
     
-    // Always try to run the script with inputs, even if it might fail
-    const testResult = runScript(studentCode, createStudentsInputs)
-    
-    // Check for correct prompting regardless of success
+    // Check for correct prompting
     checkAndRecord('createStudents prompts for student names and grades correctly', () => {
         if (!createStudentsExists) return false
-        return testResult.callCounts && testResult.callCounts.prompt >= createStudentsInputs.length
+
+        const testResult = runScript(studentCode, createStudentsInputs)
+        return testResult.callCounts && testResult.callCounts?.prompt >= createStudentsInputs.length
     }, 10)
 
     // Create test data for function tests
@@ -71,19 +57,18 @@ export function test(studentFilePath) {
     ]
 
     // Test calcAverageGrade function
-    const averageGradeResults = {}
-    if (calcAverageGradeExists) {
+    checkAndRecord('calcAverageGrade calculates student average grade correctly', () => {
+        const averageGradeResults = {}
+        
+        if (!calcAverageGradeExists) return false
+        
         testStudents.forEach(student => {
             const avgGradeResult = runFunction('calcAverageGrade', [student])
             if (avgGradeResult.success) {
                 averageGradeResults[student.name] = avgGradeResult.returnValue
             }
         })
-    }
-    
-    checkAndRecord('calcAverageGrade calculates student average grade correctly', () => {
-        if (!calcAverageGradeExists) return false
-        
+
         // Expected averages
         const expectedAverages = {
             'John': 87.67,   // (85 + 90 + 88) / 3
@@ -96,78 +81,76 @@ export function test(studentFilePath) {
         return Object.keys(expectedAverages).every(name => {
             const expected = expectedAverages[name]
             const actual = averageGradeResults[name]
+
             return Math.abs(expected - actual) < 0.1
         })
     }, 10)
 
     // Test findWorstStudent function
-    let worstStudentResult = null
-    if (findWorstStudentExists) {
-        const worstResult = runFunction('findWorstStudent', [testStudents])
-        worstStudentResult = worstResult.success ? worstResult.returnValue : null
-    }
-    
     checkAndRecord('findWorstStudent identifies student with lowest average grade', () => {
         if (!findWorstStudentExists) return false
+
+        const worstResult = runFunction('findWorstStudent', [testStudents])
+        const worstStudentResult = worstResult.success ? worstResult.returnValue : null
         
         // Eve has the lowest average
-        return worstStudentResult && worstStudentResult.name === 'Eve'
+        return worstStudentResult?.name === 'Eve'
     }, 10)
 
     // Test factorGrades function
-    let factoredStudent = null
-    if (factorGradesExists) {
-        const factorResult = runFunction('factorGrades', [{ 
-            name: 'John', 
-            grades: [85, 90, 88] 
-        }])
-        
-        factoredStudent = factorResult.success ? factorResult.returnValue : null
-    }
     
     checkAndRecord('factorGrades adds 5% to all grades correctly', () => {
         if (!factorGradesExists) return false
         
+        const testStudent = { name: 'John', grades: [85, 90, 88] }
+        const factorResult = runFunction('factorGrades', [testStudent])
+        
+        if (!factorResult.success) return false
+        
         // Expected factored grades for John
         const expectedGrades = [89.25, 94.5, 92.4]  // 85*1.05, 90*1.05, 88*1.05
         
-        if (!factoredStudent || !factoredStudent.grades) return false
-        
         // Check each grade with some tolerance for floating point
-        return factoredStudent.grades.every((grade, index) => {
-            return Math.abs(grade - expectedGrades[index]) < 0.1
-        })
+        return testStudent.grades.every((grade, index) => 
+            Math.abs(grade - expectedGrades[index]) < 0.1)
     }, 10)
 
     // Test forEach function
-    let forEachResult = false
-    if (forEachExists) {
+    
+    checkAndRecord('forEach correctly applies a function to each student', () => {
+        if (!forEachExists) return false
+
         // Create a test function that counts how many students it processes
         let processedCount = 0
         const testFunc = () => { processedCount++ }
         
         const forEachTestResult = runFunction('forEach', [testStudents, testFunc])
-        
-        forEachResult = processedCount === testStudents.length
-    }
+        if (!forEachTestResult.success) return false
+
+        return processedCount === testStudents.length
+    }, 20)
     
-    checkAndRecord('forEach correctly applies a function to each student', () => {
+    checkAndRecord('forEach passes student objects to the callback function', () => {
         if (!forEachExists) return false
-        return forEachResult
-    }, 10)
-    
-    checkAndRecord('Uses forEach to implement findWorstStudent', () => {
-        if (!findWorstStudentExists || !forEachExists) return false
         
-        const findWorstFunctionBody = studentCode.match(/function\s+findWorstStudent\s*\([^)]*\)\s*{([^}]*)}/s)
-        if (!findWorstFunctionBody) return false
+        // Create test array to collect student names
+        const collectedNames = []
         
-        return findWorstFunctionBody[1].includes('forEach')
-    }, 10)
-    
-    checkAndRecord('Uses forEach to apply factorGrades to all students', () => {
-        return studentCode.includes('forEach') && studentCode.includes('factorGrades')
-    }, 10)
+        // Create a test function that collects student names
+        const nameCollector = student => {
+            if (student && student.name) {
+                collectedNames.push(student.name)
+            }
+        }
+        
+        const forEachTestResult = runFunction('forEach', [testStudents, nameCollector])
+        if (!forEachTestResult.success) return false
+        
+        // Check if all expected student names were collected
+        const expectedNames = testStudents.map(student => student.name)
+        return expectedNames.length === collectedNames.length &&
+               expectedNames.every(name => collectedNames.includes(name))
+    }, 20)
     
     return { 
         ...getResults(), 
