@@ -1,5 +1,5 @@
 import vm from 'vm'
-import { mockPrompt, mockAlert, mockConsoleLog, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getCallCounts } from './mockBrowser.js'
+import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mockBrowser.js'
 
 let context = null
 
@@ -57,9 +57,14 @@ function _initSandbox() {
 
 	// Create sandbox with mocked browser functions
 	const sandbox = {
-		console: { log: mockConsoleLog },
+		console: { 
+			log: mockConsoleLog,
+			table: mockConsoleTable
+		},
 		alert: mockAlert,
 		prompt: mockPrompt,
+		setInterval: mockSetInterval,
+		clearInterval: mockClearInterval,
 
         ..._getDeafultContext(),
 
@@ -118,12 +123,14 @@ function _getSideEffects() {
 	return {
 		consoleOutput: getConsoleMessages(),
 		alertOutput: getAlertMessages(),
+		tableOutput: getConsoleTables(),
 		allOutput: [...getConsoleMessages(), ...getAlertMessages()],
 		callCounts: getCallCounts(),
 		variables: {
 			declared: Array.from(context.declaredVariables),
 			accessed: Array.from(context.accessedVariables),
 		},
+		activeIntervalIds: getActiveIntervalIds()
 	}
 }
 
@@ -141,8 +148,6 @@ function _getDeafultContext() {
         Array,
         Date,
         
-        setInterval,
-        clearInterval,
         setTimeout,
         clearTimeout,
     }
