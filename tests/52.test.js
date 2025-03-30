@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -64,7 +64,7 @@ export function test(studentFilePath) {
         if (!monsterResult.success) return false
         
         const monster = monsterResult.returnValue
-        return monster && 
+        return monster && checkReturnValueType(monster, 'object') &&
                monster.name === 'TestMonster' && 
                monster.power === 50 &&
                typeof monster.id === 'number'
@@ -87,11 +87,11 @@ export function test(studentFilePath) {
         const noParamsMonster = noParamsResult.returnValue
         
         // Check that monsters were created with default values where needed
-        return nameOnlyMonster && 
+        return nameOnlyMonster && checkReturnValueType(nameOnlyMonster, 'object') &&
                nameOnlyMonster.name === 'NameOnly' && 
                typeof nameOnlyMonster.power === 'number' &&
                typeof nameOnlyMonster.id === 'number' &&
-               noParamsMonster && 
+               noParamsMonster && checkReturnValueType(noParamsMonster, 'object') &&
                typeof noParamsMonster.name === 'string' &&
                typeof noParamsMonster.power === 'number' &&
                typeof noParamsMonster.id === 'number'
@@ -161,7 +161,7 @@ export function test(studentFilePath) {
         if (!verifyResult.success) return false
         
         const updatedMonster = verifyResult.returnValue
-        return updatedMonster && updatedMonster.power === newPower
+        return updatedMonster && updatedMonster?.power === newPower
     }, 10)
 
     // Test findMostPowerful function
@@ -184,7 +184,7 @@ export function test(studentFilePath) {
         if (!powerfulResult.success) return false
         
         const powerfulMonster = powerfulResult.returnValue
-        return powerfulMonster && powerfulMonster.id === mostPowerfulMonster.id
+        return powerfulMonster && powerfulMonster?.id === mostPowerfulMonster.id
     }, 10)
 
     // Test breedMonsters function
@@ -212,7 +212,7 @@ export function test(studentFilePath) {
         const childMonster = breedResult.returnValue
         
         // Check child monster properties
-        return childMonster && 
+        return childMonster && checkReturnValueType(childMonster, 'object') &&
                Math.abs(childMonster.power - expectedPower) < 0.1 &&
                typeof childMonster.id === 'number' &&
                childMonster.name.includes(firstHalf) &&

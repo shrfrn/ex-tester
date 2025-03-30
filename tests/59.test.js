@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -165,7 +165,7 @@ export function test(studentFilePath) {
             if (!drawResult.success) return false
             
             const num = drawResult.returnValue
-            if (typeof num !== 'number') return false
+            if (!checkReturnValueType(num, 'number')) return false
             
             // Check if number is in valid range
             if (num < 1 || num > 99) return false
@@ -304,13 +304,13 @@ export function test(studentFilePath) {
         if (!playersValid) return false
         
         // Check that setInterval was called
-        if (playResult.callCounts.setInterval === 0) return false
+        if (scriptResult.callCounts.setInterval === 0) return false
         
         // Check that clearInterval was called (game should end)
-        if (playResult.callCounts.clearInterval === 0) return false
+        if (scriptResult.callCounts.clearInterval === 0) return false
         
         // Check that no intervals remain active
-        if (playResult.activeIntervalIds.length > 0) return false
+        if (scriptResult.activeIntervalIds.length > 0) return false
         
         // Verify that one player has won (all cells hit)
         const hasWinner = players.some(player => {
@@ -323,8 +323,8 @@ export function test(studentFilePath) {
         
         // Verify that the interval callback was invoked at least 25 times
         // (one for each cell that needs to be hit)
-        const intervalId = playResult.activeIntervalIds[0] // Get the first interval ID
-        const callbackCount = playResult.callCounts.intervalCallbacks[intervalId] || 0
+        const intervalId = scriptResult.activeIntervalIds[0] // Get the first interval ID
+        const callbackCount = scriptResult.callCounts.intervalCallbacks[intervalId] || 0
         const enoughInvocations = callbackCount >= 25
         
         return hasWinner && enoughInvocations

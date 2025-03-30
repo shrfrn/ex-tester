@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -77,10 +77,10 @@ export function test(studentFilePath) {
         checkAndRecord(testCase.description, () => {
             if (!printNumsCountExists || !testResult.success) return false
             
-            const result = testResult.returnValue
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'array')) return false
             
-            // Check if result is an array
-            if (!Array.isArray(result)) return false
+            const result = testResult.returnValue
             
             // Check array length (should be 4 for numbers 0-3)
             if (result.length !== 4) return false

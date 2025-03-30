@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -67,6 +67,9 @@ export function test(studentFilePath) {
             
             if (!immutableResult.success) return false
             
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(immutableResult.returnValue, 'array')) return false
+            
             // Check that returned array has correct values
             const resultCorrect = immutableResult.returnValue.every(
                 (val, idx) => val === testData.expectedResult[idx]
@@ -91,6 +94,9 @@ export function test(studentFilePath) {
             const mutableResult = runFunction('multBy', [originalArray, testData.multiplier, false])
             
             if (!mutableResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(mutableResult.returnValue, 'array')) return false
             
             // Check that returned array has correct values
             const resultCorrect = mutableResult.returnValue.every(
@@ -125,11 +131,17 @@ export function test(studentFilePath) {
         
         if (!immutableResult.success) return false
         
+        // Check that returnValue exists and is an array
+        if (!checkReturnValueType(immutableResult.returnValue, 'array')) return false
+        
         // Run mutable version on a copy to avoid interfering with previous test
         const mutableTestArray = [...testArray]
         const mutableResult = runFunction('multBy', [mutableTestArray, 2, false])
         
         if (!mutableResult.success) return false
+        
+        // Check that returnValue exists and is an array
+        if (!checkReturnValueType(mutableResult.returnValue, 'array')) return false
         
         // For mutable version, returned array should be the same reference as input array
         // We can only check indirectly by modifying the returned array and checking original

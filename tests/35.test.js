@@ -1,7 +1,7 @@
 // In the current testing scheme, bonuses are not well supported.
 // Consider making the encript() bonus mandatory
 
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -67,7 +67,12 @@ export function test(studentFilePath) {
             const testResult = runFunction('encrypt', testCase.input)
             
             checkAndRecord(testCase.description, () => {
-                return testResult.success && testResult.returnValue === testCase.expected
+                if (!testResult.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(testResult.returnValue, 'string')) return false
+                
+                return testResult.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {
@@ -110,7 +115,12 @@ export function test(studentFilePath) {
             const testResult = runFunction('decrypt', testCase.input)
             
             checkAndRecord(testCase.description, () => {
-                return testResult.success && testResult.returnValue === testCase.expected
+                if (!testResult.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(testResult.returnValue, 'string')) return false
+                
+                return testResult.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {
@@ -140,9 +150,11 @@ export function test(studentFilePath) {
             const encryptResult = runFunction('encrypt', [testCase.input])
             
             let roundTripSuccess = false
-            if (encryptResult.success) {
+            if (encryptResult.success && checkReturnValueType(encryptResult.returnValue, 'string')) {
                 const decryptResult = runFunction('decrypt', [encryptResult.returnValue])
-                roundTripSuccess = decryptResult.success && decryptResult.returnValue === testCase.input
+                roundTripSuccess = decryptResult.success && 
+                                   checkReturnValueType(decryptResult.returnValue, 'string') && 
+                                   decryptResult.returnValue === testCase.input
             }
             
             checkAndRecord(testCase.description, roundTripSuccess, testCase.points)

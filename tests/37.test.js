@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -39,16 +39,24 @@ export function test(studentFilePath) {
             ? runFunction('generatePass', testCase.input)
             : { success: false, returnValue: null }
         
-        if (functionExists && testResult.success && typeof testResult.returnValue === 'string' && testResult.returnValue.length === length) {
-            checkAndRecord(testCase.description, () => {
-                return  testResult.returnValue.length === length
-            }, testCase.points)
+        checkAndRecord(testCase.description, () => {
+            if (!functionExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'string')) return false
+            
+            return testResult.returnValue.length === length
+        }, testCase.points)
     
-            // Test for valid characters
-            checkAndRecord('Password contains only valid characters (letters and digits)', () => {
-                return isValidPassword(testResult.returnValue) 
-            }, 10)
-        }
+        // Test for valid characters
+        checkAndRecord('Password contains only valid characters (letters and digits)', () => {
+            if (!functionExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'string')) return false
+            
+            return isValidPassword(testResult.returnValue) 
+        }, 10)
     })
 
     // Test for randomness (run multiple times and check for differences)
@@ -61,7 +69,7 @@ export function test(studentFilePath) {
         // Generate multiple passwords
         for (let i = 0; i < passWordCount; i++) {
             const testResult = runFunction('generatePass', [10])
-            if (testResult.success) {
+            if (testResult.success && checkReturnValueType(testResult.returnValue, 'string')) {
                 passwords.push(testResult.returnValue)
             }
         }

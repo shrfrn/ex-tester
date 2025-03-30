@@ -1,5 +1,5 @@
 // Very hard to test this exercise correctly. 
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -46,17 +46,19 @@ export function test(studentFilePath) {
         
         if (!testResult.success) return false
         
-        return typeof testResult.returnValue === 'number'
+        return checkReturnValueType(testResult.returnValue, 'number')
     }, 10)
     
     // Run the function multiple times to collect results for randomness and statistical analysis
     const numRuns = 50  // Increased for better statistical sampling
     const results = []
     
-    for (let i = 0; i < numRuns; i++) {
-        const testResult = runFunction('makeWater', [])
-        if (testResult.success) {
-            results.push(testResult.returnValue)
+    if (makeWaterExists) {
+        for (let i = 0; i < numRuns; i++) {
+            const testResult = runFunction('makeWater', [])
+            if (testResult.success && checkReturnValueType(testResult.returnValue, 'number')) {
+                results.push(testResult.returnValue)
+            }
         }
     }
     
@@ -98,7 +100,7 @@ export function test(studentFilePath) {
         const maxAttempts = 15
         for (let i = 0; i < maxAttempts; i++) {
             const testResult = runFunction('makeWater', [])
-            if (testResult.success && testResult.returnValue >= 1) {
+            if (testResult.success && checkReturnValueType(testResult.returnValue, 'number') && testResult.returnValue >= 1) {
                 return true
             }
         }

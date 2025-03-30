@@ -7,7 +7,7 @@
 // part. We need to consider rephrasing instructions in the exercise.
 // TODO: This test needs to be reviewed.
 
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -71,7 +71,12 @@ export function test(studentFilePath) {
         testCases.forEach(testCase => {
             const result = runFunction('getAsterisks', testCase.input)
             checkAndRecord(testCase.description, () => {
-                return result.success && result.returnValue === testCase.expected
+                if (!result.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(result.returnValue, 'string')) return false
+                
+                return result.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {
@@ -101,7 +106,12 @@ export function test(studentFilePath) {
         testCases.forEach(testCase => {
             const result = runFunction('getTriangle', testCase.input)
             checkAndRecord(testCase.description, () => {
-                return result.success && result.returnValue === testCase.expected
+                if (!result.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(result.returnValue, 'string')) return false
+                
+                return result.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {
@@ -115,12 +125,20 @@ export function test(studentFilePath) {
         
         checkAndRecord('getMusicEqualizer(5) returns a string with 5 lines', () => {
             if (!result.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(result.returnValue, 'string')) return false
+            
             const lines = result.returnValue.split('\n').filter(line => line.length > 0)
             return lines.length === 5
         }, 7)
         
         checkAndRecord('getMusicEqualizer produces random-length asterisk sequences between 1-10', () => {
             if (!result.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(result.returnValue, 'string')) return false
+            
             const lines = result.returnValue.split('\n').filter(line => line.length > 0)
             return lines.every(line => {
                 const length = line.length
@@ -146,7 +164,12 @@ export function test(studentFilePath) {
         testCases.forEach(testCase => {
             const result = runFunction('getBlock', testCase.input)
             checkAndRecord(testCase.description, () => {
-                return result.success && result.returnValue === testCase.expected
+                if (!result.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(result.returnValue, 'string')) return false
+                
+                return result.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {
@@ -172,7 +195,12 @@ export function test(studentFilePath) {
         testCases.forEach(testCase => {
             const result = runFunction('getBlockOutline', testCase.input)
             checkAndRecord(testCase.description, () => {
-                return result.success && result.returnValue === testCase.expected
+                if (!result.success) return false
+                
+                // Check that returnValue has the expected type before operating on it
+                if (!checkReturnValueType(result.returnValue, 'string')) return false
+                
+                return result.returnValue === testCase.expected
             }, testCase.points)
         })
     } else {

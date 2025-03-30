@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -56,6 +56,9 @@ export function test(studentFilePath) {
         
         checkAndRecord(`getNthLargest handles "${testCase.description}" correctly`, () => {
             if (!functionExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'number')) return false
             
             return testResult.returnValue === testCase.expected
         }, 10)

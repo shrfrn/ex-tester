@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -63,6 +63,9 @@ export function test(studentFilePath) {
         // Check that the function returns the expected result
         checkAndRecord(`Returns correct filtered array for "${testCase.description}"`, () => {
             if (!functionExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'array')) return false
             
             const expected = JSON.stringify(testCase.expected)
             const actual = JSON.stringify(testResult.returnValue)

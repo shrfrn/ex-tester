@@ -1,7 +1,7 @@
 // Problem writing a test because the exercise requires 
 // factoring and the original solution cannot be expected to remain
 
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -69,9 +69,12 @@ export function test(studentFilePath) {
             : { success: false, returnValue: null }
         
         checkAndRecord(testCase.description, () => {
-            return startsWithSExists && 
-                   testResult.success && 
-                   testResult.returnValue === testCase.expected
+            if (!startsWithSExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'boolean')) return false
+            
+            return testResult.returnValue === testCase.expected
         }, testCase.points)
     })
 
@@ -128,9 +131,12 @@ export function test(studentFilePath) {
             : { success: false, returnValue: null }
         
         checkAndRecord(testCase.description, () => {
-            return startsWithLetterExists && 
-                   testResult.success && 
-                   testResult.returnValue === testCase.expected
+            if (!startsWithLetterExists || !testResult.success) return false
+            
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'boolean')) return false
+            
+            return testResult.returnValue === testCase.expected
         }, testCase.points)
     })
 

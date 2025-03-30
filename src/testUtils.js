@@ -42,6 +42,34 @@ export function runFunction(functionName, inputs = []) {
 	}
 }
 
+export function checkReturnValueType(returnValue, expectedType, allowNullish = false) {
+	// Check if returnValue exists, unless nullish values are allowed
+	if ((returnValue === undefined || returnValue === null) && !allowNullish) return false
+	
+	// If we allow nullish and the value is nullish, return true
+	if ((returnValue === undefined || returnValue === null) && allowNullish) return true
+	
+	// Type checking
+	switch(expectedType.toLowerCase()) {
+		case 'string':
+			return typeof returnValue === 'string'
+		case 'number':
+			return typeof returnValue === 'number'
+		case 'boolean':
+			return typeof returnValue === 'boolean'
+		case 'array':
+			return Array.isArray(returnValue)
+		case 'object':
+			return typeof returnValue === 'object' && !Array.isArray(returnValue)
+		case 'function':
+			return typeof returnValue === 'function'
+		case 'any':
+			return true
+		default:
+			return false
+	}
+}
+
 function _runInContext(code, inputs = [], timeout = 500) {
 	const sandbox = _initSandbox()
 	const script = new vm.Script(code)

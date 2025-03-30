@@ -2,7 +2,7 @@
 // this makes it very difficult to test the exercise correctly. 
 // Consider altering the exercise text
 
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -71,8 +71,8 @@ export function test(studentFilePath) {
             
             if (!testResult.success) return false
             
-            // Check if result is an array
-            if (!Array.isArray(testResult.returnValue)) return false
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'array')) return false
             
             // Check if result matches expected array using Array.every
             return testResult.returnValue.every((val, idx) => val === testCase.expected[idx])
@@ -88,8 +88,8 @@ export function test(studentFilePath) {
             
             if (!testResult.success) return false
             
-            // Check if result is an array
-            if (!Array.isArray(testResult.returnValue)) return false
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'array')) return false
             
             // Check if result matches expected array using Array.every
             return testResult.returnValue.every((val, idx) => val === testCase.expected[idx])
@@ -106,6 +106,10 @@ export function test(studentFilePath) {
         const bubbleSortResult = runFunction('bubbleSort', [testArray])
         
         if (!sortNumsResult.success || !bubbleSortResult.success) return false
+        
+        // Check that both returnValues have the expected type
+        if (!checkReturnValueType(sortNumsResult.returnValue, 'array') || 
+            !checkReturnValueType(bubbleSortResult.returnValue, 'array')) return false
         
         // Compare results using Array.every
         return sortNumsResult.returnValue.every((val, idx) => val === bubbleSortResult.returnValue[idx])

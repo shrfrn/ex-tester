@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -70,7 +70,7 @@ export function test(studentFilePath) {
         checkAndRecord(`countWordApperances handles "${testCase.description}" correctly`, () => {
             if (!functionExists || !testResult.success) return false
             
-            if (typeof testResult.returnValue !== 'object' || testResult.returnValue === null) return false
+            if (!checkReturnValueType(testResult.returnValue, 'object')) return false
 
             const expected = JSON.stringify(testCase.expected)
             const actual = JSON.stringify(testResult.returnValue)

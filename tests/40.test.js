@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -81,10 +81,10 @@ export function test(studentFilePath) {
         checkAndRecord(testCase.description, () => {
             if (!getLoremIpsumExists || !testResult.success) return false
             
-            const loremText = testResult.returnValue
+            // Check that returnValue has the expected type before operating on it
+            if (!checkReturnValueType(testResult.returnValue, 'string')) return false
             
-            // Check that it's a string
-            if (typeof loremText !== 'string') return false
+            const loremText = testResult.returnValue
             
             // Count the words (split by spaces)
             const words = loremText.trim().split(/\s+/)
@@ -99,6 +99,9 @@ export function test(studentFilePath) {
         
         const loremResult = runFunction('getLoremIpsum', [5])
         if (!loremResult.success) return false
+        
+        // Check that returnValue has the expected type before operating on it
+        if (!checkReturnValueType(loremResult.returnValue, 'string')) return false
         
         const words = loremResult.returnValue.trim().split(/\s+/)
         

@@ -1,4 +1,4 @@
-import { runScript, runFunction } from '../src/testUtils.js'
+import { runScript } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 

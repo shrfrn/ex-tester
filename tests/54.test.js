@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -37,7 +37,7 @@ export function test(studentFilePath) {
 
         const plane = planeResult.returnValue
         return plane && 
-               typeof plane === 'object' && 
+               checkReturnValueType(plane, 'object') && 
                plane.model === 'Boeing 737' && 
                plane.seatCount === 180
     }, 10)
@@ -51,7 +51,7 @@ export function test(studentFilePath) {
 
         const passenger = passengerResult.returnValue
         return passenger && 
-               typeof passenger === 'object' && 
+               checkReturnValueType(passenger, 'object') && 
                passenger.fullName === 'John Doe' && 
                Array.isArray(passenger.flights) && 
                passenger.flights.length === 0 &&
@@ -72,7 +72,7 @@ export function test(studentFilePath) {
 
         const flight = flightResult.returnValue
         return flight && 
-               typeof flight === 'object' && 
+               checkReturnValueType(flight, 'object') && 
                flight.departure === 'New York' && 
                flight.destination === 'London' && 
                flight.plane === plane && 

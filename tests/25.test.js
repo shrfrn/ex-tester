@@ -1,4 +1,4 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
 import { createTestCollector } from '../src/testCollector.js'
 import { stripComments } from '../src/fileUtils.js'
 
@@ -32,7 +32,7 @@ export function test(studentFilePath) {
             // Run multiple times to ensure we're getting random results within range
             for (let i = 0; i < 50; i++) {
                 const testResult = runFunction('getRandomInt', testRange.input)
-                if (testResult.success) {
+                if (testResult.success && checkReturnValueType(testResult.returnValue, 'number')) {
                     results.push(testResult.returnValue)
                 }
             }
