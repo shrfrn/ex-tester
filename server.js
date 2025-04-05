@@ -2,6 +2,7 @@ import express from 'express'
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
+import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { runExerciseTests } from './src/core.js'
 import { generateReport } from './src/reportGenerator.js'
@@ -13,6 +14,37 @@ const __dirname = path.dirname(__filename)
 // Create Express app
 const app = express()
 const port = process.env.PORT || 3000
+
+// Configure CORS for external requests
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, etc)
+        // This also allows same-origin requests
+        if (!origin) return callback(null, true);
+
+        // Check if the origin is allowed
+        const allowedOrigins = [
+            /^http:\/\/localhost:55\d{2}$/,   // localhost:55xx
+            /^http:\/\/127\.0\.0\.1:55\d{2}$/,  // 127.0.0.1:55xx
+            /^http:\/\/localhost:3000$/,      // Same origin
+            /^http:\/\/127\.0\.0\.1:3000$/     // Same origin IP
+        ];
+
+        const allowed = allowedOrigins.some(pattern => pattern.test(origin));
+
+        if (allowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true  // Allow cookies to be sent with requests
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions))
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -56,6 +88,7 @@ app.post('/api/test', upload.single('file'), async (req, res) => {
 
         // Get the uploaded file path
         const filePath = req.file.path
+        console.log('filePath', filePath)
 
         // Run the test
         const { results } = await runExerciseTests({ exerciseId, filePath })

@@ -89,7 +89,9 @@
             resultDiv.innerHTML = '<p>Running tests...</p>';
 
             try {
-                const response = await fetch('/api/test', {
+                // Use the full URL to ensure CORS is properly applied
+                const serverUrl = window.location.origin;
+                const response = await fetch(`${serverUrl}/api/test`, {
                     method: 'POST',
                     body: formData
                 });

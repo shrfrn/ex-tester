@@ -12,12 +12,17 @@ import { parseNumRange } from './utils.js'
 
 const prompt = promptSync({ sigint: true })
 
-async function main() {
+function main() {
 	console.log('Student Assignment Testing Suite')
-	console.log('==============================\n')
+	console.log('================================\n')
 
     const { submissionsPath, exerciseRangeInput } = promptInput()
 	const exerciseNumbers = parseNumRange(exerciseRangeInput)
+
+    batchTest({ submissionsPath, exerciseNumbers })
+}
+
+async function batchTest({ submissionsPath, exerciseNumbers }) {
 
 	try {
 		const studentResults = []
