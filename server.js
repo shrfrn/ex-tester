@@ -3,7 +3,8 @@ import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
-import { runExerciseTests, generateSingleExerciseReport } from './src/core.js'
+import { runExerciseTests } from './src/core.js'
+import { generateReport } from './src/reportGenerator.js'
 
 // Set up __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -59,8 +60,29 @@ app.post('/api/test', upload.single('file'), async (req, res) => {
         // Run the test
         const { results } = await runExerciseTests({ exerciseId, filePath })
 
+        // Create a student result object in the format expected by the report generator
+        const studentResult = {
+            name: studentName,
+            folderPath: '',
+            testResults: {
+                [exerciseId]: results
+            },
+            scores: {
+                submissionRate: 1,
+                exerciseScore: results.score || 0,
+                normalizedScore: results.score || 0,
+                submittedCount: 1,
+                totalExercises: 1,
+                successfulCount: results.success ? 1 : 0,
+                successRate: results.success ? 1 : 0
+            }
+        }
+
         // Generate HTML report
-        const htmlReport = generateSingleExerciseReport(studentName, exerciseId, results, 'htmlDetailed')
+        const htmlReport = generateReport([studentResult], 'htmlDetailed', {
+            saveToFile: false,
+            isSingleExercise: true
+        })
 
         // Return the results
         res.send(htmlReport)
