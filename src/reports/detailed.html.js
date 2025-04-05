@@ -3,7 +3,9 @@ import path from 'path'
 
 import { compactNumberList } from '../utils.js'
 
-export function htmlDetailed(studentResults) {
+export function htmlDetailed(studentResults, options = {}) {
+    // Default options
+    const { saveToFile = true, isSingleExercise = false } = options;
     // Generate a detailed report for each student
     const reports = studentResults.map(student => {
         // Start building HTML
@@ -114,7 +116,7 @@ export function htmlDetailed(studentResults) {
 </head>
 <body>
   <h1>${student.name}</h1>
-  
+
   <table>
     <thead>
       <tr>
@@ -148,7 +150,7 @@ export function htmlDetailed(studentResults) {
       </tr>
     </tbody>
   </table>
-  
+
   <hr>
 `
 
@@ -158,7 +160,7 @@ export function htmlDetailed(studentResults) {
 
         for (const exerciseId of sortedExercises) {
             const result = student.testResults[exerciseId]
-            
+
             // Skip exercises that weren't submitted
             if (!result || result.submitted === false) {
                 continue
@@ -166,12 +168,12 @@ export function htmlDetailed(studentResults) {
 
             // Get exercise title if available, otherwise use a default
             const exerciseTitle = result.title || `Exercise ${exerciseId}`
-            
+
             // Create collapsible section for this exercise
             html += `
   <details>
     <summary><strong>Ex ${exerciseId} - ${exerciseTitle}</strong></summary>
-    
+
     <table>
       <thead>
         <tr>
@@ -192,7 +194,7 @@ export function htmlDetailed(studentResults) {
             const codeQualityScore = `${100 + result.codeQuality.score}%`
             const successCheckbox = result.success ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
             const correctOutputCheckbox = result.correctOutput ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'
-            
+
             html += `
           <td>${scorePercentage}</td>
           <td>${codeQualityScore}</td>
@@ -202,7 +204,7 @@ export function htmlDetailed(studentResults) {
       </tbody>
     </table>
 `
-            
+
             // Add code section if available
             if (result.studentCode) {
                 html += `
@@ -214,13 +216,13 @@ export function htmlDetailed(studentResults) {
     </details>
 `
             }
-            
+
             // Add failed tests section if available
             if (result.failed && result.failed.length > 0) {
                 const totalTests = (result.passed ? result.passed.length : 0) + result.failed.length
                 const failedCount = result.failed.length
                 const penaltyPoints = result.failed.reduce((sum, test) => sum + (test.score || 0), 0)
-                
+
                 html += `
     <details class="indent-1">
       <summary><strong>${failedCount} of ${totalTests} tests failed - <code>${penaltyPoints} points</code></strong></summary>
@@ -233,7 +235,7 @@ export function htmlDetailed(studentResults) {
         </thead>
         <tbody>
 `
-                
+
                 for (const test of result.failed) {
                     html += `
           <tr>
@@ -242,7 +244,7 @@ export function htmlDetailed(studentResults) {
           </tr>
 `
                 }
-                
+
                 html += `
         </tbody>
       </table>
@@ -254,7 +256,7 @@ export function htmlDetailed(studentResults) {
                 const totalTests = result.totalTests || result.failedTests.length
                 const failedCount = result.failedTests.length
                 const penaltyPoints = result.failedTests.reduce((sum, test) => sum + (test.penalty || 0), 0)
-                
+
                 html += `
     <details class="indent-1">
       <summary><strong>${failedCount} of ${totalTests} tests failed - <code>${penaltyPoints} points</code></strong></summary>
@@ -267,7 +269,7 @@ export function htmlDetailed(studentResults) {
         </thead>
         <tbody>
 `
-                
+
                 for (const test of result.failedTests) {
                     html += `
           <tr>
@@ -276,44 +278,52 @@ export function htmlDetailed(studentResults) {
           </tr>
 `
                 }
-                
+
                 html += `
         </tbody>
       </table>
     </details>
 `
             }
-            
+
             html += `
   </details>
-  
+
   <hr>
 `
         }
-        
+
         html += `
 </body>
 </html>
 `
-        
+
         return html
     })
-    
-    // Create directory if it doesn't exist
-    const detailedReportsDir = path.join(process.cwd(), 'detailed-reports')
-    if (!fs.existsSync(detailedReportsDir)) {
-        fs.mkdirSync(detailedReportsDir, { recursive: true })
+
+    // For a single exercise report, just return the first report
+    if (isSingleExercise && studentResults.length === 1) {
+        return reports[0];
     }
-    
-    // Save individual reports for each student
-    for (let i = 0; i < studentResults.length; i++) {
-        const student = studentResults[i]
-        const sanitizedName = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
-        const outputPath = path.join(process.cwd(), 'detailed-reports', `${sanitizedName}-detailed-report.html`)
-        fs.writeFileSync(outputPath, reports[i])
-        console.log(`Detailed HTML report for ${student.name} saved to: ${outputPath}`)
+
+    // Only save files if saveToFile is true
+    if (saveToFile) {
+        // Create directory if it doesn't exist
+        const detailedReportsDir = path.join(process.cwd(), 'detailed-reports')
+        if (!fs.existsSync(detailedReportsDir)) {
+            fs.mkdirSync(detailedReportsDir, { recursive: true })
+        }
+
+        // Save individual reports for each student
+        for (let i = 0; i < studentResults.length; i++) {
+            const student = studentResults[i]
+            const sanitizedName = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+            const outputPath = path.join(process.cwd(), 'detailed-reports', `${sanitizedName}-detailed-report.html`)
+            fs.writeFileSync(outputPath, reports[i])
+            console.log(`Detailed HTML report for ${student.name} saved to: ${outputPath}`)
+        }
     }
-    
+
     // Combine all reports into one file with navigation
     const combinedHtml = `
 <!DOCTYPE html>
@@ -447,7 +457,7 @@ export function htmlDetailed(studentResults) {
 </head>
 <body>
   <h1>All Students - Detailed Report</h1>
-  
+
   <nav>
     <ul>
       ${studentResults.map(student => {
@@ -456,7 +466,7 @@ export function htmlDetailed(studentResults) {
       }).join('\n      ')}
     </ul>
   </nav>
-  
+
   ${studentResults.map((student, index) => {
     const sanitizedId = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
     return `<div id="${sanitizedId}" class="student-report">${reports[index].split('<body>')[1].split('</body>')[0]}</div>`
@@ -464,10 +474,12 @@ export function htmlDetailed(studentResults) {
 </body>
 </html>
 `
-    
-    const combinedOutputPath = path.join(process.cwd(), 'detailed-reports', 'all-students-detailed-report.html')
-    fs.writeFileSync(combinedOutputPath, combinedHtml)
-    console.log(`Combined detailed HTML report saved to: ${combinedOutputPath}`)
-    
+
+    if (saveToFile) {
+        const combinedOutputPath = path.join(process.cwd(), 'detailed-reports', 'all-students-detailed-report.html')
+        fs.writeFileSync(combinedOutputPath, combinedHtml)
+        console.log(`Combined detailed HTML report saved to: ${combinedOutputPath}`)
+    }
+
     return combinedHtml
-} 
+}
