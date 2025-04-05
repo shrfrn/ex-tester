@@ -12,7 +12,7 @@ const reports = {
     htmlDetailed,
 }
 
-export function generateReport(studentResults, reportName = 'htmlOverview') {
+export function generateReport(studentResults, reportName = 'htmlDetailed') {
     const report = reports[reportName]
     if (!report) {
         throw new Error(`Report ${reportName} not found`)

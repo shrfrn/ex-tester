@@ -6,11 +6,11 @@ export async function testStudentExercises(studentFolder, exerciseFiles) {
 	const results = {}
 
 	await Promise.all(exerciseFiles.map(async exerciseFile => {
-        const exercisePath = studentFolder + '/' + exerciseFile
+        const studentScript = studentFolder + '/' + exerciseFile
         const exerciseId = String(parseInt(exerciseFile)).padStart(2, '0')
 
-		if (fs.existsSync(exercisePath)) {
-			results[exerciseId] = await _runTests(exerciseId, exercisePath)
+		if (fs.existsSync(studentScript)) {
+			results[exerciseId] = await _runTests(exerciseId, studentScript)
 		} else {
 			results[exerciseId] = { submitted: false }
 		}
@@ -77,14 +77,14 @@ export function calculateStudentScores(studentResults, exerciseCount) {
 	return studentResults
 }
 
-async function _runTests(exerciseId, exerciseFile) {
+async function _runTests(exerciseId, studentScript) {
 	const testScriptPath = '../tests/' + String(exerciseId).padStart(2, '0') + '.test.js'
 
     console.log('Running tests ', testScriptPath)
 	const { test } = await import(testScriptPath)
-	const results = test(exerciseFile)
+	const results = test(studentScript)
 
-    const codeQuality = validateCodeQuality(exerciseFile)
+    const codeQuality = validateCodeQuality(studentScript)
     results.codeQuality = codeQuality
 
 	return results

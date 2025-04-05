@@ -3,6 +3,8 @@ import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterva
 
 let context = null
 
+// TODO: Spacial case when student's code is a blank string
+
 // Run a student's code in a sandbox environment
 export function runScript(code, inputs = []) {
 	let results = {}
