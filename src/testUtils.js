@@ -47,10 +47,10 @@ export function runFunction(functionName, inputs = []) {
 export function checkReturnValueType(returnValue, expectedType, allowNullish = false) {
 	// Check if returnValue exists, unless nullish values are allowed
 	if ((returnValue === undefined || returnValue === null) && !allowNullish) return false
-	
+
 	// If we allow nullish and the value is nullish, return true
 	if ((returnValue === undefined || returnValue === null) && allowNullish) return true
-	
+
 	// Type checking
 	switch(expectedType.toLowerCase()) {
 		case 'string':
@@ -75,9 +75,9 @@ export function checkReturnValueType(returnValue, expectedType, allowNullish = f
 function _runInContext(code, inputs = [], timeout = 500) {
 	const sandbox = _initSandbox()
 	const script = new vm.Script(code)
-    
+
 	context = vm.createContext(sandbox)
-    
+
     setPromptResponses(inputs)
 	script.runInContext(context, { timeout })
 }
@@ -87,7 +87,7 @@ function _initSandbox() {
 
 	// Create sandbox with mocked browser functions
 	const sandbox = {
-		console: { 
+		console: {
 			log: mockConsoleLog,
 			table: mockConsoleTable
 		},
@@ -177,40 +177,10 @@ function _getDeafultContext() {
         Object,
         Array,
         Date,
-        
+
         setTimeout,
         clearTimeout,
     }
-}
-
-// Check if any output contains text (case insensitive, flexible matching)
-export function outputContains(outputs, text) {
-	const lowerText = text.toLowerCase()
-	return outputs.some(output => output.toLowerCase().includes(lowerText))
-}
-
-// Check if any output matches a regular expression pattern
-export function outputMatches(outputs, pattern) {
-	return outputs.some(output => pattern.test(output))
-}
-
-// Check if outputs contain all required texts (with flexible matching)
-export function outputContainsAll(outputs, requiredTexts) {
-	return requiredTexts.every(text => outputContains(outputs, text))
-}
-
-// Check if output contains any number close to the expected value (within tolerance)
-export function outputContainsNumber(outputs, expectedNumber, tolerance = 0.01) {
-	// Extract all numbers from outputs
-	const numbers = []
-	outputs.forEach(output => {
-		const matches = output.match(/-?\d+(\.\d+)?/g)
-		if (matches) {
-			matches.forEach(match => numbers.push(parseFloat(match)))
-		}
-	})
-
-	return numbers.some(number => Math.abs(number - expectedNumber) <= tolerance)
 }
 
 // Check if a function with the specified name and parameter count exists in the code
@@ -220,19 +190,19 @@ export function hasFunctionWithSignature(functionName, expectedParamCount) {
 
     // Check if the function exists in the context
     if (typeof context[functionName] !== 'function') return false
-    
+
     // Get the function's string representation
     const functionStr = context[functionName].toString()
-    
+
     // Extract parameter list using regex
-    const paramListMatch = functionStr.match(/function\s*[^(]*\(\s*([^)]*)\s*\)/) || 
+    const paramListMatch = functionStr.match(/function\s*[^(]*\(\s*([^)]*)\s*\)/) ||
                            functionStr.match(/\(\s*([^)]*)\s*\)\s*=>/)
-    
+
     if (!paramListMatch) return false
-    
+
     // Count parameters (handling empty parameter list)
     const paramList = paramListMatch[1].trim()
     const actualParamCount = paramList === '' ? 0 : paramList.split(',').length
-    
+
     return actualParamCount === expectedParamCount
 }

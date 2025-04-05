@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 
 import { findStudentFolders, getStudentExercises } from './fileUtils.js'
-import { runExerciseTests, calculateStudentScores } from './core.js'
+import { runExerciseTests, calculateStudentScores } from './test-runner.js'
 import { generateReport } from './reportGenerator.js'
 import { parseNumRange } from './utils.js'
 import { promptInput } from './promptUtils.js'

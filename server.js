@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { runExerciseTests } from './src/core.js'
+import { runExerciseTests } from './src/test-runner.js'
 import { generateReport } from './src/reportGenerator.js'
 
 // Set up __dirname equivalent for ES modules
