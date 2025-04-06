@@ -1,4 +1,4 @@
-import { stripComments } from '../src/fileUtils.js'
+import { stripComments } from '../src/services/file-utils.service.js'
 import fs from 'fs'
 import path from 'path'
 

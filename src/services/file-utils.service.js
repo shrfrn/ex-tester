@@ -81,4 +81,4 @@ export function stripComments(filePath) {
 		console.error(`Error reading or processing file ${filePath}:`, error)
 		return ''
 	}
-}
+} 

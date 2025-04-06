@@ -185,4 +185,4 @@ async function _selectReportType() {
 
     console.log(`Selected report type: ${reportType}`)
     return reportType
-}
+} 

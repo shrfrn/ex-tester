@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { compactNumberList } from '../../utils.js'
+import { compactNumberList } from '../util.service.js'
 
 export function htmlDetailed(studentResults, options = {}) {
     // Default options

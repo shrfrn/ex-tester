@@ -3,7 +3,7 @@
 // Consider altering the exercise text
 
 import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType, createTestCollector } from '../src/services/test.service.js'
-import { stripComments } from '../src/fileUtils.js'
+import { stripComments } from '../src/services/file-utils.service.js'
 
 export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)

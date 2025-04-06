@@ -1,4 +1,4 @@
-import { stripComments } from "../src/fileUtils.js"
+import { stripComments } from "../src/services/file-utils.service.js"
 
 // TODO: Add more tests for code quality - check codeAnalyzer.js for more tests
 

@@ -1,11 +1,11 @@
 import path from 'path'
 import fs from 'fs'
 
-import { findStudentFolders, getStudentExercises } from './fileUtils.js'
+import { findStudentFolders, getStudentExercises } from './services/file-utils.service.js'
 import { runExerciseTests, calculateStudentScores } from './test-runner.js'
 import { generateReport } from './services/report.service.js'
-import { parseNumRange } from './utils.js'
-import { promptInput } from './promptUtils.js'
+import { parseNumRange } from './services/util.service.js'
+import { promptInput } from './prompt.js'
 
 async function main() {
 	console.log('Student Assignment Testing Suite')

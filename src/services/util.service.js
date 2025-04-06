@@ -1,4 +1,3 @@
-
 // Format a list of numbers into a compact representation (e.g. [1,2,3,5,6,7,10] -> "1-3, 5-7, 10")
 export function compactNumberList(nums) {
 	if (!nums || nums.length === 0) return ''
@@ -50,5 +49,4 @@ export function parseNumRange(input) {
 	}
 
 	return [...new Set(numbers)].sort((a, b) => a - b)
-}
-
+} 
