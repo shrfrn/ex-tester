@@ -8,25 +8,41 @@ inquirer.registerPrompt('checkbox-plus', inquirerCheckboxPlus)
 
 
 // Main function to prompt for user input
-export async function promptInput() {
+export async function promptInput(config = {}) {
     // Get the current working directory as the starting point
     const currentDir = process.cwd()
+    let submissionsPath = config.submissionsPath
+    let exerciseRangeInput = config.exerciseRangeInput
+    let reportType = config.reportType
 
-    // Navigate and select a directory
-    const selectedPath = await _navigateDirectories(currentDir)
-    if (!selectedPath) {
-        console.error('No directory selected. Exiting.')
-        process.exit(1)
+    // If submissionsPath is not in config, navigate and prompt user
+    if (!submissionsPath) {
+        // Navigate and select a directory
+        const selectedPath = await _navigateDirectories(currentDir)
+        if (!selectedPath) {
+            console.error('No directory selected. Exiting.')
+            process.exit(1)
+        }
+
+        // Select student segment and create path with placeholder
+        submissionsPath = await _selectStudentSegment(selectedPath)
+    } else {
+        console.log(`Using submissions path from config: ${submissionsPath}`)
     }
 
-    // Select student segment and create path with placeholder
-    const submissionsPath = await _selectStudentSegment(selectedPath)
+    // If exerciseRangeInput is not in config, prompt user
+    if (!exerciseRangeInput) {
+        exerciseRangeInput = await _getExerciseRange()
+    } else {
+        console.log(`Using exercise range from config: ${exerciseRangeInput}`)
+    }
 
-    // Get exercise range from user
-    const exerciseRangeInput = await _getExerciseRange()
-
-    // Get report type from user
-    const reportType = await _selectReportType()
+    // If reportType is not in config, prompt user
+    if (!reportType) {
+        reportType = await _selectReportType()
+    } else {
+        console.log(`Using report type from config: ${reportType}`)
+    }
 
     return { submissionsPath, exerciseRangeInput, reportType }
 }

@@ -1,17 +1,37 @@
 import path from 'path'
 import fs from 'fs'
 
+import commandLineArgs from 'command-line-args'
+
 import { findStudentFolders, getStudentExercises } from './services/file-utils.service.js'
 import { runExerciseTests, calculateStudentScores } from './test-runner.js'
 import { generateReport } from './services/report.service.js'
-import { parseNumRange } from './services/util.service.js'
+import { parseNumRange, readJsonFile } from './services/util.service.js'
 import { promptInput } from './prompt.js'
+
+// Define command line options
+const optionDefinitions = [
+	{ name: 'config', alias: 'c', type: String, description: 'Path to a JSON config file containing predefined options' }
+]
 
 async function main() {
 	console.log('Student Assignment Testing Suite')
 	console.log('================================\n')
 
-	const { submissionsPath, exerciseRangeInput, reportType } = await promptInput()
+	// Parse command line arguments
+	const options = commandLineArgs(optionDefinitions)
+	
+	// Initialize config object
+	let config = {}
+	
+	// If config file is provided, read it
+	if (options.config) {
+		console.log(`Reading config from: ${options.config}`)
+		config = readJsonFile(options.config)
+	}
+	
+	// Get inputs from user for any missing config values
+	const { submissionsPath, exerciseRangeInput, reportType } = await promptInput(config)
 	const exerciseNumbers = parseNumRange(exerciseRangeInput)
 
 	batchTest({ submissionsPath, exerciseNumbers, reportType })
