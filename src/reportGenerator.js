@@ -12,13 +12,6 @@ const reports = {
     htmlDetailed,
 }
 
-/**
- * Generate a report for student test results
- * @param {Array} studentResults - Array of student test results
- * @param {string} reportName - Name of the report to generate
- * @param {Object} options - Options for the report generator
- * @returns {string} Generated report
- */
 export function generateReport(studentResults, reportName = 'htmlDetailed', options = {}) {
     const report = reports[reportName]
     if (!report) {

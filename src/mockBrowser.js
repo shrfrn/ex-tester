@@ -129,17 +129,17 @@ const getConsoleTables = () => [...consoleTables]
 const getCallCounts = () => ({...callCounts})
 
 export {
-  mockPrompt,
-  mockAlert,
-  mockConsoleLog,
-  mockConsoleTable,
-  mockSetInterval,
-  mockClearInterval,
-  getActiveIntervalIds,
-  resetMocks,
-  setPromptResponses,
-  getAlertMessages,
-  getConsoleMessages,
-  getConsoleTables,
-  getCallCounts
+    mockPrompt,
+    mockAlert,
+    mockConsoleLog,
+    mockConsoleTable,
+    mockSetInterval,
+    mockClearInterval,
+    getActiveIntervalIds,
+    resetMocks,
+    setPromptResponses,
+    getAlertMessages,
+    getConsoleMessages,
+    getConsoleTables,
+    getCallCounts
 } 
