@@ -11,6 +11,8 @@ import { promptInput } from './prompt.js'
 
 // Define command line options
 const optionDefinitions = [
+	// Config file can contain: submissionsPath, exerciseRangeInput, reportType, and startDir
+	// The startDir option is only used if submissionsPath is not provided
 	{ name: 'config', alias: 'c', type: String, description: 'Path to a JSON config file containing predefined options' }
 ]
 

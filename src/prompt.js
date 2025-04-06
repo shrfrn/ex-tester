@@ -9,14 +9,19 @@ inquirer.registerPrompt('checkbox-plus', inquirerCheckboxPlus)
 
 // Main function to prompt for user input
 export async function promptInput(config = {}) {
-    // Get the current working directory as the starting point
-    const currentDir = process.cwd()
+    // Get the starting directory (use startDir from config if available, otherwise use current directory)
+    const currentDir = config.startDir || process.cwd()
     let submissionsPath = config.submissionsPath
     let exerciseRangeInput = config.exerciseRangeInput
     let reportType = config.reportType
 
     // If submissionsPath is not in config, navigate and prompt user
     if (!submissionsPath) {
+        // If startDir was provided, log it
+        if (config.startDir) {
+            console.log(`Starting navigation from: ${config.startDir}`)
+        }
+        
         // Navigate and select a directory
         const selectedPath = await _navigateDirectories(currentDir)
         if (!selectedPath) {

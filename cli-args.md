@@ -29,6 +29,7 @@ The config file should be a JSON file with the following structure:
 
 ```json
 {
+    "startDir": "/path/to/start/navigation",
     "submissionsPath": "/path/to/{student:*}/submissions",
     "exerciseRangeInput": "1-5, 8-10",
     "reportType": "htmlDetailed"
@@ -47,6 +48,7 @@ etc...
 
 ### Config Options
 
+- `startDir`: The directory from which to start navigation (only used if submissionsPath is not provided)
 - `submissionsPath`: The path to the folder containing student submissions
 - `exerciseRangeInput`: The range of exercises to test (e.g., "1-13" or "1, 3-5, 12-13")
 - `reportType`: The type of report to generate (options: mdOverview, csvOverview, mdDetailed, htmlOverview, htmlDetailed)
@@ -66,4 +68,14 @@ For example, if your config file only includes the submissionsPath:
 }
 ```
 
-The application will use that path and then prompt you for the student name segment location,  exercise range and report type. 
+The application will use that path and then prompt you for the student name segment location, exercise range and report type.
+
+If you only provide a startDir without a submissionsPath:
+
+```json
+{
+    "startDir": "/path/to/start/navigation"
+}
+```
+
+The application will start the file navigation from that directory, making it easier to quickly navigate to commonly used folders. 
