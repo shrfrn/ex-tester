@@ -37,7 +37,14 @@ export function csvOverview(studentResults) {
 	}
 	
 	// Save the CSV file
-	const outputPath = path.join(process.cwd(), 'student-report.csv')
+	const outputPath = path.join(process.cwd(), 'reports', 'student-report.csv')
+	
+	// Create reports directory if it doesn't exist
+	const reportsDir = path.join(process.cwd(), 'reports')
+	if (!fs.existsSync(reportsDir)) {
+		fs.mkdirSync(reportsDir, { recursive: true })
+	}
+	
 	fs.writeFileSync(outputPath, csvContent)
 	console.log(`CSV report saved to: ${outputPath}`)
 	

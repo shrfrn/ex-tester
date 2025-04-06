@@ -67,7 +67,7 @@ const upload = multer({ storage: storage })
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')))
-app.use('/detailed-reports', express.static(path.join(__dirname, 'detailed-reports')))
+app.use('/reports', express.static(path.join(__dirname, 'reports')))
 
 // Parse JSON bodies
 app.use(express.json())

@@ -35,7 +35,13 @@ async function batchTest({ submissionsPath, exerciseNumbers, reportType = 'htmlD
 		// TODO: result calc needs to be fixed
 		calculateStudentScores(studentResults, exerciseNumbers.length)
 
-		const resultsPath = path.join(process.cwd(), 'student-results.json')
+		// Create reports directory if it doesn't exist
+		const reportsDir = path.join(process.cwd(), 'reports')
+		if (!fs.existsSync(reportsDir)) {
+			fs.mkdirSync(reportsDir, { recursive: true })
+		}
+
+		const resultsPath = path.join(process.cwd(), 'reports', 'student-results.json')
 		fs.writeFileSync(resultsPath, JSON.stringify(studentResults, null, 4))
 
 		generateReport(studentResults, reportType)

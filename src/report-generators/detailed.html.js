@@ -309,7 +309,7 @@ export function htmlDetailed(studentResults, options = {}) {
     // Only save files if saveToFile is true
     if (saveToFile) {
         // Create directory if it doesn't exist
-        const detailedReportsDir = path.join(process.cwd(), 'detailed-reports')
+        const detailedReportsDir = path.join(process.cwd(), 'reports')
         if (!fs.existsSync(detailedReportsDir)) {
             fs.mkdirSync(detailedReportsDir, { recursive: true })
         }
@@ -318,7 +318,7 @@ export function htmlDetailed(studentResults, options = {}) {
         for (let i = 0; i < studentResults.length; i++) {
             const student = studentResults[i]
             const sanitizedName = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
-            const outputPath = path.join(process.cwd(), 'detailed-reports', `${sanitizedName}-detailed-report.html`)
+            const outputPath = path.join(process.cwd(), 'reports', `${sanitizedName}-detailed-report.html`)
             fs.writeFileSync(outputPath, reports[i])
             console.log(`Detailed HTML report for ${student.name} saved to: ${outputPath}`)
         }
@@ -476,7 +476,7 @@ export function htmlDetailed(studentResults, options = {}) {
 `
 
     if (saveToFile) {
-        const combinedOutputPath = path.join(process.cwd(), 'detailed-reports', 'all-students-detailed-report.html')
+        const combinedOutputPath = path.join(process.cwd(), 'reports', 'all-students-detailed-report.html')
         fs.writeFileSync(combinedOutputPath, combinedHtml)
         console.log(`Combined detailed HTML report saved to: ${combinedOutputPath}`)
     }

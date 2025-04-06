@@ -20,20 +20,8 @@ dist/
 coverage/
 
 # Generated reports
-student-evaluation-report.md 
 CaFeb25-ExerciseSubmission
-src/student-results.json
-src/student-report.md
-src/student-report.csv
-**/*-detailed-report.md
-**/*-detailed-report.html
-src/_detailed-report copy.md
-src/_detailed-report.md
-src/report-generators/_detailed-report copy.md
-src/student-report.html
+reports/*.*
 src/ex-tester.code-workspace
 ex-tester.code-workspace
-student-results.json
 uploads
-student-report.csv
-student-report.md

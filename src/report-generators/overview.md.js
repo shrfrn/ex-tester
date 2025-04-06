@@ -62,7 +62,14 @@ export function mdOverview(studentResults) {
 	}
 
 	// Save the report
-	const outputPath = path.join(process.cwd(), 'student-report.md')
+	const outputPath = path.join(process.cwd(), 'reports', 'student-report.md')
+	
+	// Create reports directory if it doesn't exist
+	const reportsDir = path.join(process.cwd(), 'reports')
+	if (!fs.existsSync(reportsDir)) {
+		fs.mkdirSync(reportsDir, { recursive: true })
+	}
+	
 	fs.writeFileSync(outputPath, report)
 	console.log(`Report saved to: ${outputPath}`)
 
