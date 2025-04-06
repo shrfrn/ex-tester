@@ -4,8 +4,9 @@ import path from 'path'
 import fs from 'fs'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { runExerciseTests } from './src/test-runner.js'
-import { generateReport } from './src/reportGenerator.js'
+
+import { runExerciseTests } from './test-runner.js'
+import { generateReport } from './reportGenerator.js'
 
 // Set up __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url)
