@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { validateCodeQuality } from '../tests/codeQuality.test.js'
-import { generateReport } from './reportGenerator.js'
+import { generateReport } from './services/report.service.js'
 
 // Unified function to run tests for exercises
 export async function runExerciseTests(options) {

@@ -6,7 +6,7 @@ import cors from 'cors'
 import { fileURLToPath } from 'url'
 
 import { runExerciseTests } from './test-runner.js'
-import { generateReport } from './reportGenerator.js'
+import { generateReport } from './services/report.service.js'
 
 // Set up __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url)

@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import { findStudentFolders, getStudentExercises } from './fileUtils.js'
 import { runExerciseTests, calculateStudentScores } from './test-runner.js'
-import { generateReport } from './reportGenerator.js'
+import { generateReport } from './services/report.service.js'
 import { parseNumRange } from './utils.js'
 import { promptInput } from './promptUtils.js'
 

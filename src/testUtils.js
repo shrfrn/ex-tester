@@ -1,5 +1,5 @@
 import vm from 'vm'
-import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mockBrowser.js'
+import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './services/mock-browser.service.js'
 
 let context = null
 
@@ -70,6 +70,30 @@ export function checkReturnValueType(returnValue, expectedType, allowNullish = f
 		default:
 			return false
 	}
+}
+
+// Check if a function with the specified name and parameter count exists in the code
+export function hasFunctionWithSignature(functionName, expectedParamCount) {
+    // Check if the context has been initialized
+    if (!context) throw new Error('Context not initialized')
+
+    // Check if the function exists in the context
+    if (typeof context[functionName] !== 'function') return false
+
+    // Get the function's string representation
+    const functionStr = context[functionName].toString()
+
+    // Extract parameter list using regex
+    const paramListMatch = functionStr.match(/function\s*[^(]*\(\s*([^)]*)\s*\)/) ||
+                           functionStr.match(/\(\s*([^)]*)\s*\)\s*=>/)
+
+    if (!paramListMatch) return false
+
+    // Count parameters (handling empty parameter list)
+    const paramList = paramListMatch[1].trim()
+    const actualParamCount = paramList === '' ? 0 : paramList.split(',').length
+
+    return actualParamCount === expectedParamCount
 }
 
 function _runInContext(code, inputs = [], timeout = 500) {
@@ -181,28 +205,4 @@ function _getDeafultContext() {
         setTimeout,
         clearTimeout,
     }
-}
-
-// Check if a function with the specified name and parameter count exists in the code
-export function hasFunctionWithSignature(functionName, expectedParamCount) {
-    // Check if the context has been initialized
-    if (!context) throw new Error('Context not initialized')
-
-    // Check if the function exists in the context
-    if (typeof context[functionName] !== 'function') return false
-
-    // Get the function's string representation
-    const functionStr = context[functionName].toString()
-
-    // Extract parameter list using regex
-    const paramListMatch = functionStr.match(/function\s*[^(]*\(\s*([^)]*)\s*\)/) ||
-                           functionStr.match(/\(\s*([^)]*)\s*\)\s*=>/)
-
-    if (!paramListMatch) return false
-
-    // Count parameters (handling empty parameter list)
-    const paramList = paramListMatch[1].trim()
-    const actualParamCount = paramList === '' ? 0 : paramList.split(',').length
-
-    return actualParamCount === expectedParamCount
 }
