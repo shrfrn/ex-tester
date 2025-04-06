@@ -1,5 +1,5 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../src/testUtils.js'
-import { createTestCollector } from '../src/testCollector.js'
+import { runScript, runFunction, hasFunctionWithSignature } from '../src/services/test.service.js'
+import { createTestCollector } from '../src/services/test.service.js'
 import { stripComments } from '../src/fileUtils.js'
 
 

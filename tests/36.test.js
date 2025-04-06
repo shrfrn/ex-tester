@@ -2,8 +2,8 @@
 // Consider using a more explicit instructions 
 // Test needs to be examined more closely
 
-import { runScript } from '../src/testUtils.js'
-import { createTestCollector } from '../src/testCollector.js'
+import { runScript } from '../src/services/test.service.js'
+import { createTestCollector } from '../src/services/test.service.js'
 import { stripComments } from '../src/fileUtils.js'
 
 export function test(studentFilePath) {

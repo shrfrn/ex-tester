@@ -1,9 +1,49 @@
 import vm from 'vm'
-import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './services/mock-browser.service.js'
+import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mock-browser.service.js'
 
 let context = null
 
-// TODO: Spacial case when student's code is a blank string
+//
+// Part 1: TestCollector functions
+//
+
+export function createTestCollector() {
+    const results = {
+        passed: [],
+        failed: [],
+        score: 0,
+        count: 0,
+        maxScore: 0,
+    }
+
+    function checkAndRecord(description, condition, score = 10) {
+        results.count++
+        results.maxScore += score
+
+        if (typeof condition === 'function') condition = condition()
+
+        if (condition) {
+            results.score += score
+            results.passed.push({ description, score })
+        } else {
+            results.failed.push({ description, score })
+        }
+        return condition
+    }
+
+    function getResults() {
+        return {
+            ...results,
+            percentage: Math.round((results.score / results.maxScore) * 100)
+        }
+    }
+
+    return { checkAndRecord, getResults }
+}
+
+//
+// Part 2: TestUtils functions
+//
 
 // Run a student's code in a sandbox environment
 export function runScript(code, inputs = []) {
@@ -205,4 +245,4 @@ function _getDeafultContext() {
         setTimeout,
         clearTimeout,
     }
-}
+} 

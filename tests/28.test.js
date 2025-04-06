@@ -1,8 +1,8 @@
 // I would consider rephrasing the exercise to require that the algorithm 
 // is implemented in a function called getGCD()
 
-import { runScript } from '../src/testUtils.js'
-import { createTestCollector } from '../src/testCollector.js'
+import { runScript } from '../src/services/test.service.js'
+import { createTestCollector } from '../src/services/test.service.js'
 import { stripComments } from '../src/fileUtils.js'
 
 export function test(studentFilePath) {

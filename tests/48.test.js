@@ -2,8 +2,7 @@
 // this makes it very difficult to test the exercise correctly. 
 // Consider altering the exercise text
 
-import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../src/testUtils.js'
-import { createTestCollector } from '../src/testCollector.js'
+import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType, createTestCollector } from '../src/services/test.service.js'
 import { stripComments } from '../src/fileUtils.js'
 
 export function test(studentFilePath) {
