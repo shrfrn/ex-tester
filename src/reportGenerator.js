@@ -1,8 +1,8 @@
-import { htmlDetailed } from './reports/detailed.html.js'
-import { mdDetailed } from './reports/detailed.md.js'
-import { csvOverview } from './reports/overview.csv.js'
-import { htmlOverview } from './reports/overview.html.js'
-import { mdOverview } from './reports/overview.md.js'
+import { htmlDetailed } from './report-generators/detailed.html.js'
+import { mdDetailed } from './report-generators/detailed.md.js'
+import { csvOverview } from './report-generators/overview.csv.js'
+import { htmlOverview } from './report-generators/overview.html.js'
+import { mdOverview } from './report-generators/overview.md.js'
 
 const reports = {
     mdOverview,
