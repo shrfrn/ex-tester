@@ -123,13 +123,23 @@ async function _selectStudentSegment(selectedPath) {
             type: 'list',
             name: 'studentSegment',
             message: 'Select which segment contains the student name:',
-            choices: pathSegments.map((segment, index) => ({
-                name: `${segment} (position ${index + 1} in path)`,
-                value: index,
-            })),
+            choices: [
+                { name: 'Exact (use path as-is, no placeholder)', value: 'exact' },
+                new inquirer.Separator('--- Path Segments ---'),
+                ...pathSegments.map((segment, index) => ({
+                    name: `${segment} (position ${index + 1} in path)`,
+                    value: index,
+                })),
+            ],
             pageSize: 10,
         },
     ])
+
+    // If "exact" option was selected, return the original path
+    if (studentSegment === 'exact') {
+        console.log('Using exact path without student placeholder')
+        return selectedPath
+    }
 
     console.log(`Selected segment '${pathSegments[studentSegment]}' as student name placeholder`)
 

@@ -13,8 +13,23 @@ export async function findStudentFolders(globPattern) {
 
 		// Extract the named group pattern for student name
 		const studentNamePattern = globPattern.match(/\{student:([^}]+)\}/)
+		
+		// If no student pattern is found, use the exact path
 		if (!studentNamePattern) {
-			throw new Error('Glob pattern must include a named group for student name like "{student:*}"')
+			console.log('No student placeholder found, using exact path')
+			// Check if the path exists
+			if (!fs.existsSync(globPattern)) {
+				throw new Error(`Path does not exist: ${globPattern}`)
+			}
+			
+			// Extract student name from the last directory in the path
+			const pathParts = globPattern.split(path.sep).filter(part => part.length > 0)
+			const studentName = pathParts[pathParts.length - 2] || 'Unknown' // Assuming student name is second-to-last segment
+			
+			return [{
+				name: studentName,
+				path: globPattern
+			}]
 		}
 
 		// Replace the named group with a regular glob pattern for matching
