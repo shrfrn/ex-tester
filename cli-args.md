@@ -20,7 +20,8 @@ The config file should be a JSON file with the following structure:
 
 ```json
 {
-    "submissionsPath": "/path/to/submissions",
+    "startDir": "/path/to/start/navigation",
+    "submissionsPath": "/path/to/student/submissions",
     "exerciseRangeInput": "1-5, 8-10",
     "reportType": "htmlDetailed"
 }

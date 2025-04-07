@@ -77,28 +77,32 @@ export function calculateStudentScores(studentResults, exerciseCount) {
         // Calculate weighted score for submitted exercises
         let totalWeightedScore = 0
         let totalWeight = 0
-        let maxScore = 0
 
         for (const exercise of submittedExercises) {
             const result = student.testResults[exercise]
-            if (result && typeof result.score === 'number' && typeof result.weight === 'number') {
+            if (result && typeof result.score === 'number' && typeof result.weight === 'number' && typeof result.maxScore === 'number') {
+                // First normalize the raw score to 0-100%
+                let normalizedScore = Math.min(100, Math.round((result.score / result.maxScore) * 100))
+                
+                // Apply code quality factor (capped to avoid scores over 100%)
                 const codeQualityFactor = (100 + result.codeQuality.score) / 100
-                result.score = Math.round(result.score * codeQualityFactor)
-
-                totalWeightedScore += result.score * result.weight
+                normalizedScore = Math.min(100, Math.round(normalizedScore * codeQualityFactor))
+                
+                // Store the normalized score in the result
+                result.normalizedScore = normalizedScore
+                
+                // Calculate weighted score contribution
+                totalWeightedScore += normalizedScore * result.weight
                 totalWeight += result.weight
-                maxScore += result.maxScore
             }
         }
 
-        // Calculate final score
-        const exerciseScore = totalWeightedScore / totalWeight
-        const normalizedScore = Math.round((totalWeightedScore / maxScore) * 100)
+        // Calculate final score (0-100)
+        const normalizedScore = totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0
 
         // Add scores to student results
         student.scores = {
             submissionRate,
-            exerciseScore,
             normalizedScore,
             submittedCount: submittedExercises.length,
             totalExercises: exerciseCount,
@@ -125,6 +129,13 @@ async function _runTests(exerciseId, studentScript) {
         // Add code quality analysis
         const codeQuality = validateCodeQuality(studentScript)
         results.codeQuality = codeQuality
+        
+        // Ensure score is never over maxScore (fallback to percentage if maxScore is missing)
+        if (typeof results.score === 'number' && typeof results.maxScore === 'number') {
+            results.score = Math.min(results.score, results.maxScore)
+            // Calculate raw percentage without code quality adjustments
+            results.percentage = Math.round((results.score / results.maxScore) * 100)
+        }
 
         return results
     } catch (error) {
@@ -133,7 +144,10 @@ async function _runTests(exerciseId, studentScript) {
             submitted: true,
             success: false,
             error: error.message,
-            codeQuality: { score: 0, results: [] }
+            codeQuality: { score: 0, results: [] },
+            score: 0,
+            maxScore: 100,
+            percentage: 0
         }
     }
 }
