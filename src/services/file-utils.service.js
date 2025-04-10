@@ -22,12 +22,9 @@ export async function findStudentFolders(globPattern) {
 				throw new Error(`Path does not exist: ${globPattern}`)
 			}
 			
-			// Extract student name from the last directory in the path
-			const pathParts = globPattern.split(path.sep).filter(part => part.length > 0)
-			const studentName = pathParts[pathParts.length - 2] || 'Unknown' // Assuming student name is second-to-last segment
-			
+			// Use a generic name for single student reports
 			return [{
-				name: studentName,
+				name: 'Student',
 				path: globPattern
 			}]
 		}
