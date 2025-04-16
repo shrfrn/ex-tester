@@ -6,7 +6,7 @@ import cors from 'cors'
 import { fileURLToPath } from 'url'
 
 import { runExerciseTests } from './test-runner.js'
-import { generateReport } from './services/report.service.js'
+import { generateReport, initReportService } from './services/report.service.js'
 
 // Set up __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -15,6 +15,27 @@ const __dirname = path.dirname(__filename)
 // Create Express app
 const app = express()
 const port = process.env.PORT || 3000
+
+// Set up view engine
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+
+// Initialize the report service with a renderer function
+initReportService((view, options) => {
+    return new Promise((resolve, reject) => {
+        try {
+            app.render(view, options, (err, html) => {
+                if (err) {
+                    reject(err)
+                    return
+                }
+                resolve(html)
+            })
+        } catch (error) {
+            reject(error)
+        }
+    })
+})
 
 // Configure CORS for external requests
 const corsOptions = {
@@ -89,7 +110,6 @@ app.post('/api/test', upload.single('file'), async (req, res) => {
 
         // Get the uploaded file path
         const filePath = req.file.path
-        console.log('filePath', filePath)
 
         // Run the test
         const { results } = await runExerciseTests({ exerciseId, filePath })
@@ -112,12 +132,15 @@ app.post('/api/test', upload.single('file'), async (req, res) => {
             }
         }
 
-        // Generate HTML report
-        const htmlReport = generateReport([studentResult], 'htmlDetailed', {
+        // Generate HTML report using Pug
+        const htmlReport = await generateReport([studentResult], 'htmlDetailedPug', {
             saveToFile: false,
             isSingleExercise: true
         })
-
+        
+        // Set the content type explicitly to text/html
+        res.setHeader('Content-Type', 'text/html')
+        
         // Return the results
         res.send(htmlReport)
 
@@ -133,7 +156,7 @@ app.post('/api/test', upload.single('file'), async (req, res) => {
 
 // Simple HTML form for testing
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+    res.render('index', { title: 'Exercise Tester' })
 })
 
 // Start the server

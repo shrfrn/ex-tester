@@ -1,0 +1,43 @@
+include ./code-section
+include ./failed-tests
+
+mixin exerciseDetails(exerciseId, result)
+  - const exerciseTitle = result.title || `Exercise ${exerciseId}`
+  - const scorePercentage = result.normalizedScore ? `${result.normalizedScore}%` : (result.percentage ? `${result.percentage}%` : 'N/A')
+  - const codeQualityScore = `${100 + result.codeQuality.score}%`
+  
+  details
+    summary
+      strong Ex #{exerciseId} - #{exerciseTitle}
+    
+    table
+      thead
+        tr
+          th Score
+          th Code Quality
+          th Success
+          th Correct Output
+      tbody
+        tr
+          td= scorePercentage
+          td= codeQualityScore
+          td
+            if result.success
+              input(type="checkbox" checked disabled)
+            else
+              input(type="checkbox" disabled)
+          td
+            if result.correctOutput
+              input(type="checkbox" checked disabled)
+            else
+              input(type="checkbox" disabled)
+    
+    if result.studentCode
+      +codeSection(result.studentCode)
+    
+    if result.failed && result.failed.length > 0
+      +failedTests(result.failed, result.passed ? result.passed.length : 0)
+    else if result.failedTests && result.failedTests.length > 0
+      +legacyFailedTests(result.failedTests, result.totalTests)
+  
+  hr 

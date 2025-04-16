@@ -1,0 +1,7 @@
+mixin navigation(students)
+  nav
+    ul
+      each student in students
+        - const sanitizedId = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+        li
+          a(href=`#${sanitizedId}`) #{student.name} 

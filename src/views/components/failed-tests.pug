@@ -1,0 +1,39 @@
+mixin failedTests(failed, passedCount)
+  - const totalTests = passedCount + failed.length
+  - const failedCount = failed.length
+  - const penaltyPoints = failed.reduce((sum, test) => sum + (test.score || 0), 0)
+
+  details.indent-1
+    summary
+      strong #{failedCount} of #{totalTests} tests failed - 
+      code #{penaltyPoints} points
+    table
+      thead
+        tr
+          th Test
+          th Penalty
+      tbody
+        each test in failed
+          tr
+            td= test.description
+            td= test.score
+
+mixin legacyFailedTests(failedTests, totalTests)
+  - const failedCount = failedTests.length
+  - const totalTestCount = totalTests || failedTests.length
+  - const penaltyPoints = failedTests.reduce((sum, test) => sum + (test.penalty || 0), 0)
+
+  details.indent-1
+    summary
+      strong #{failedCount} of #{totalTestCount} tests failed - 
+      code #{penaltyPoints} points
+    table
+      thead
+        tr
+          th Test
+          th Penalty
+      tbody
+        each test in failedTests
+          tr
+            td= test.name
+            td= test.penalty 

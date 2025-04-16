@@ -1,0 +1,13 @@
+extends ../layouts/main
+
+include ../components/student-summary
+include ../components/exercise-details
+
+block content
+  h1 #{student.name} Report
+  
+  +studentSummary(student)
+  
+  each result, exerciseId in student.testResults
+    if result && result.submitted !== false
+      +exerciseDetails(exerciseId, result) 

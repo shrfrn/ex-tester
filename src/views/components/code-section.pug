@@ -1,0 +1,7 @@
+mixin codeSection(code)
+  details.indent-1
+    summary
+      strong Code
+    div.code-container
+      pre
+        code.language-javascript= code.trim() 

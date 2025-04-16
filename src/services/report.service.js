@@ -1,4 +1,5 @@
 import { htmlDetailed } from './report-generators/detailed.html.js'
+import { htmlDetailedPug, initPugRenderer } from './report-generators/detailed.html.pug.js'
 import { mdDetailed } from './report-generators/detailed.md.js'
 import { csvOverview } from './report-generators/overview.csv.js'
 import { htmlOverview } from './report-generators/overview.html.js'
@@ -10,9 +11,15 @@ const reports = {
     mdDetailed,
     htmlOverview,
     htmlDetailed,
+    htmlDetailedPug,
 }
 
-export function generateReport(studentResults, reportName = 'htmlDetailed', options = {}) {
+// Initialize the Pug renderer with the Express app
+export function initReportService(renderer) {
+    initPugRenderer(renderer)
+}
+
+export function generateReport(studentResults, reportName = 'htmlDetailedPug', options = {}) {
     const report = reports[reportName]
     if (!report) {
         throw new Error(`Report ${reportName} not found`)

@@ -1,0 +1,57 @@
+extends layouts/main
+
+block content
+  h1 Exercise Tester
+  
+  form#testForm(enctype="multipart/form-data")
+    div
+      label(for="studentName") Student Name:
+      input#studentName(type="text" name="studentName" required)
+    
+    div
+      label(for="exerciseId") Exercise ID:
+      input#exerciseId(type="number" name="exerciseId" min="1" max="100" required)
+    
+    div
+      label(for="file") JavaScript File:
+      input#file(type="file" name="file" accept=".js" required)
+    
+    button(type="submit") Run Test
+  
+  #result
+    p Test results will appear here...
+  
+  script.
+    document.getElementById('testForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const resultDiv = document.getElementById('result');
+      
+      resultDiv.innerHTML = '<p>Running tests...</p>';
+      
+      try {
+        // Use the full URL to ensure CORS is properly applied
+        const serverUrl = window.location.origin;
+        const response = await fetch(`${serverUrl}/api/test`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to run test');
+        }
+        
+        const htmlResult = await response.text();
+        resultDiv.innerHTML = htmlResult;
+        
+        // Execute any scripts in the result
+        const scripts = resultDiv.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+          eval(scripts[i].innerText);
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+      }
+    }); 

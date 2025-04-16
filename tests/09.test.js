@@ -29,6 +29,7 @@ export function test(studentFilePath) {
         return matches.length >= 2
     }, 10)
 
+    // TODO: Doesn't work
     checkAndRecord('Calculates absolute difference', () => {
         // Check for either Math.abs or if statement with comparison operator
         const absPattern = /Math\.abs|if\s*\(\s*\w+\s*[<>]=?\s*\w+/i
@@ -55,6 +56,7 @@ export function test(studentFilePath) {
             output.toLowerCase().includes('relatively close'))
     }, 10)
 
+    // TODO: Doesn't work
     checkAndRecord('Correctly compares difference with both input values', () => {
         // Look for comparison of difference with both inputs
         const comparisonPattern = /\w+\s*<\s*\w+\s*&&\s*\w+\s*<\s*\w+|\w+\s*<\s*Math\.min/

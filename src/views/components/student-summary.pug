@@ -1,0 +1,16 @@
+mixin studentSummary(student)
+  table
+    thead
+      tr
+        th Exercises Submitted
+        th Submission %
+        th Success Rate
+        th Score
+    tbody
+      tr
+        td #{student.exercisesText} (#{student.scores.totalExercises})
+        td #{Math.round(student.scores.submissionRate * 100)}%
+        td #{Math.round(student.scores.successRate * 100)}% (#{student.scores.successfulCount})
+        td #{student.scores.normalizedScore}
+
+  hr 

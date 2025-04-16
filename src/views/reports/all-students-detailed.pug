@@ -1,0 +1,21 @@
+extends ../layouts/main
+
+include ../components/navigation
+include ../components/student-summary
+include ../components/exercise-details
+
+block content
+  h1 All Students - Detailed Report
+  
+  +navigation(students)
+  
+  each student in students
+    - const sanitizedId = student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+    div(id=sanitizedId class="student-report")
+      h1 #{student.name} Report
+      
+      +studentSummary(student)
+      
+      each result, exerciseId in student.testResults
+        if result && result.submitted !== false
+          +exerciseDetails(exerciseId, result) 
