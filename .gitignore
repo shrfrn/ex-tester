@@ -21,7 +21,7 @@ coverage/
 
 # Generated reports
 CaFeb25-ExerciseSubmission
-reports/*.*
 src/ex-tester.code-workspace
 ex-tester.code-workspace
 uploads
+reports

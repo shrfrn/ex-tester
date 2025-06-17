@@ -7,11 +7,10 @@ export function test(studentFilePath) {
     if (!studentCode) return { submitted: false }
 
     let { checkAndRecord, getResults } = createTestCollector()
-
+    
     // Test that the script runs without errors
-    const result = runScript(studentCode, {
-        mockPrompt: ['5', '12', '7', '8', '9', '10', '3', '4', '6', '1']
-    })
+    const testInput = ['5', '12', '7', '8', '9', '10', '3', '4', '6', '1']
+    const result = runScript(studentCode, testInput)
     checkAndRecord('Code executes successfully', result.success, 20)
 
     // Define the expected output messages - now using a single array for both paths

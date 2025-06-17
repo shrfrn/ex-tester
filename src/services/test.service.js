@@ -54,6 +54,7 @@ export function runScript(code, inputs = []) {
 
 		results.success = true
 	} catch (error) {
+        console.log(error)
 		results.success = false
 		results.error = error.message
 	} finally {

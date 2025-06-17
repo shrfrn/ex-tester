@@ -1,5 +1,5 @@
 {
   "ignore": ["reports/*", "uploads/*"],
-  "watch": ["src/"],
+  "watch": ["src/", "tests/"],
   "ext": "js,json,pug"
 } 

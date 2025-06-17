@@ -66,7 +66,7 @@ export function test(studentFilePath) {
     
     // Check for console.log or alert usage
     checkAndRecord('Uses console.log or alert for output', () => {
-        return functionExists && (result.callCounts.console?.log > 0 || result.callCounts.alert > 0)
+        return functionExists && (result.callCounts.consoleLog > 0 || result.callCounts.alert > 0)
     }, 10)
 
     return { 
