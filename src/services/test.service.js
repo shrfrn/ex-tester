@@ -1,5 +1,5 @@
 import vm from 'vm'
-import { mockPrompt, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mock-browser.service.js'
+import { mockPrompt, mockConfirm, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, setConfirmResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mock-browser.service.js'
 
 let context = null
 
@@ -143,7 +143,13 @@ function _runInContext(code, inputs = [], timeout = 500) {
 
 	context = vm.createContext(sandbox)
 
-    setPromptResponses(inputs)
+    // Split inputs between confirm (boolean) and prompt (string) responses
+    const confirmInputs = inputs.filter(input => typeof input === 'boolean')
+    const promptInputs = inputs.filter(input => typeof input !== 'boolean')
+    
+    if (confirmInputs.length > 0) setConfirmResponses(confirmInputs)
+    if (promptInputs.length > 0) setPromptResponses(promptInputs)
+    
 	script.runInContext(context, { timeout })
 }
 
@@ -158,6 +164,7 @@ function _initSandbox() {
 		},
 		alert: mockAlert,
 		prompt: mockPrompt,
+		confirm: mockConfirm,
 		setInterval: mockSetInterval,
 		clearInterval: mockClearInterval,
 
@@ -195,7 +202,7 @@ function _initSandbox() {
 	}
 
 	// Create a handler for the vm context
-    const excludedProps = ['console', 'alert', 'prompt', 'document', 'window', 'declaredVariables', 'accessedVariables']
+    const excludedProps = ['console', 'alert', 'prompt', 'confirm', 'document', 'window', 'declaredVariables', 'accessedVariables']
 	const handler = {
 		get: function (target, prop) {
 			if (typeof prop === 'string' && !prop.startsWith('_') && !excludedProps.includes(prop)) {

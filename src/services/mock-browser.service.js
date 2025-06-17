@@ -2,6 +2,7 @@
 
 // Store prompt responses for verification
 const promptResponses = []
+const confirmResponses = []
 const alertMessages = []
 const consoleMessages = []
 const consoleTables = []
@@ -9,6 +10,7 @@ const consoleTables = []
 // Track function call counts
 const callCounts = {
   prompt: 0,
+  confirm: 0,
   alert: 0,
   consoleLog: 0,
   consoleTable: 0,
@@ -25,12 +27,14 @@ let currentTime = 0
 // Reset all stored messages/responses and call counts
 const resetMocks = () => {
   promptResponses.length = 0
+  confirmResponses.length = 0
   alertMessages.length = 0
   consoleMessages.length = 0
   consoleTables.length = 0
   
   // Reset call counts
   callCounts.prompt = 0
+  callCounts.confirm = 0
   callCounts.alert = 0
   callCounts.consoleLog = 0
   callCounts.consoleTable = 0
@@ -49,6 +53,15 @@ const mockPrompt = (message, defaultValue = '') => {
   const response = promptResponses.shift() || defaultValue
   consoleMessages.push(`PROMPT: ${message}`)
   return response
+}
+
+// Mock for window.confirm
+const mockConfirm = message => {
+  callCounts.confirm++
+  const response = confirmResponses.shift()
+  const result = response !== undefined ? response : true
+  consoleMessages.push(`CONFIRM: ${message}`)
+  return result
 }
 
 // Mock for window.alert
@@ -122,6 +135,11 @@ const setPromptResponses = responses => {
   promptResponses.push(...responses)
 }
 
+// Set up confirm responses for a test
+const setConfirmResponses = responses => {
+  confirmResponses.push(...responses)
+}
+
 // Get recorded information
 const getAlertMessages = () => [...alertMessages]
 const getConsoleMessages = () => [...consoleMessages]
@@ -130,6 +148,7 @@ const getCallCounts = () => ({...callCounts})
 
 export {
     mockPrompt,
+    mockConfirm,
     mockAlert,
     mockConsoleLog,
     mockConsoleTable,
@@ -138,6 +157,7 @@ export {
     getActiveIntervalIds,
     resetMocks,
     setPromptResponses,
+    setConfirmResponses,
     getAlertMessages,
     getConsoleMessages,
     getConsoleTables,
