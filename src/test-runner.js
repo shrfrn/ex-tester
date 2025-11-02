@@ -3,54 +3,44 @@ import path from 'path'
 import { validateCodeQuality } from '../tests/codeQuality.test.js'
 import { generateReport } from './services/report.service.js'
 
-// Unified function to run tests for exercises
-export async function runExerciseTests(options) {
-    const results = {}
-
-    // Normalize input to handle both single and multiple exercises
-    const exercisesToTest = []
+// Unified function to run tests for exercises (sequential execution)
+export async function runExerciseTests({ exerciseId, filePath, studentFolder, exerciseFiles }) {
+    const testResults = {}
 
     // Case 1: Single exercise with direct file path
-    if (options.exerciseId && options.filePath) {
-        exercisesToTest.push({
-            exerciseId: options.exerciseId,
-            filePath: options.filePath
-        })
-    }
-    // Case 2: Multiple exercises from a student folder
-    else if (options.studentFolder && options.exerciseFiles) {
-        options.exerciseFiles.forEach(file => {
-            exercisesToTest.push({
-                exerciseId: String(parseInt(file)),
-                filePath: path.join(options.studentFolder, file)
-            })
-        })
-    }
-    else {
-        throw new Error('Invalid input parameters for runExerciseTests')
-    }
-
-    // Process all exercises in parallel
-    await Promise.all(exercisesToTest.map(async exercise => {
-        const formattedExerciseId = String(parseInt(exercise.exerciseId)).padStart(2, '0')
-
-        if (fs.existsSync(exercise.filePath)) {
-            results[formattedExerciseId] = await _runTests(formattedExerciseId, exercise.filePath)
+    if (exerciseId && filePath) {
+        const formattedExerciseId = String(parseInt(exerciseId)).padStart(2, '0')
+        
+        if (fs.existsSync(filePath)) {
+            testResults[formattedExerciseId] = await runTests(formattedExerciseId, filePath)
         } else {
-            results[formattedExerciseId] = { submitted: false }
+            testResults[formattedExerciseId] = { submitted: false }
         }
-    }))
 
-    // For single exercise case, return in the expected format
-    if (options.exerciseId && options.filePath) {
-        const formattedExerciseId = String(parseInt(options.exerciseId)).padStart(2, '0')
+        // Return in the format expected by server endpoint
         return {
             exerciseId: formattedExerciseId,
-            results: results[formattedExerciseId]
+            results: testResults[formattedExerciseId],
         }
     }
+    
+    // Case 2: Multiple exercises from a student folder (sequential)
+    if (studentFolder && exerciseFiles) {
+        for (const file of exerciseFiles) {
+            const exerciseId = String(parseInt(file)).padStart(2, '0')
+            const filePath = path.join(studentFolder, file)
+            
+            if (fs.existsSync(filePath)) {
+                testResults[exerciseId] = await runTests(exerciseId, filePath)
+            } else {
+                testResults[exerciseId] = { submitted: false }
+            }
+        }
+        
+        return testResults
+    }
 
-    return results
+    throw new Error('Invalid input parameters for runExerciseTests')
 }
 
 // Calculate scores for a student based on test results
@@ -115,7 +105,7 @@ export function calculateStudentScores(studentResults, exerciseCount) {
 }
 
 // Run tests for an exercise
-async function _runTests(exerciseId, studentScript) {
+export async function runTests(exerciseId, studentScript) {
     const testScriptPath = path.join('..', 'tests', `${exerciseId}.test.js`)
 
     console.log('Running tests ', testScriptPath)

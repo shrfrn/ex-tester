@@ -45,6 +45,8 @@ async function batchTest({ submissionsPath, exerciseNumbers, reportType = 'htmlD
 		const studentFolders = await findStudentFolders(submissionsPath)
 
 		for (const student of studentFolders) {
+			console.log(`\n==> Testing Student: ${student.name} <==\n`)
+
 			const exerciseFiles = await getStudentExercises(student.path, exerciseNumbers)
 			const testResults = await runExerciseTests({ studentFolder: student.path, exerciseFiles })
 
