@@ -47,11 +47,11 @@ const intervals = {}
 const timeouts = {}
 let nextIntervalId = 1
 let nextTimeoutId = 1
-let currentTime = 0
 let currentGroupDepth = 0
 
 // Reset all stored messages/responses and call counts
 const resetMocks = () => {
+  // Reset all message arrays
   promptResponses.length = 0
   confirmResponses.length = 0
   alertMessages.length = 0
@@ -61,35 +61,11 @@ const resetMocks = () => {
   consoleErrors.length = 0
   consoleGroups.length = 0
   
-  // Reset call counts
-  callCounts.prompt = 0
-  callCounts.confirm = 0
-  callCounts.alert = 0
-  callCounts.consoleLog = 0
-  callCounts.consoleTable = 0
-  callCounts.consoleWarn = 0
-  callCounts.consoleError = 0
-  callCounts.consoleInfo = 0
-  callCounts.consoleDebug = 0
-  callCounts.consoleGroup = 0
-  callCounts.consoleGroupCollapsed = 0
-  callCounts.consoleGroupEnd = 0
-  callCounts.consoleAssert = 0
-  callCounts.consoleClear = 0
-  callCounts.consoleDir = 0
-  callCounts.consoleDirxml = 0
-  callCounts.consoleTrace = 0
-  callCounts.consoleCount = 0
-  callCounts.consoleCountReset = 0
-  callCounts.consoleTime = 0
-  callCounts.consoleTimeEnd = 0
-  callCounts.consoleTimeLog = 0
-  callCounts.setInterval = 0
-  callCounts.clearInterval = 0
-  callCounts.setTimeout = 0
-  callCounts.clearTimeout = 0
-  callCounts.intervalCallbacks = {}
-  callCounts.timeoutCallbacks = {}
+  // Reset all call counts
+  Object.keys(callCounts).forEach(key => {
+    const value = callCounts[key]
+    callCounts[key] = typeof value === 'object' ? {} : 0
+  })
   
   // Reset intervals and timeouts
   Object.keys(intervals).forEach(id => delete intervals[id])
@@ -279,6 +255,10 @@ const mockConsoleTimeLog = (label = 'default', ...args) => {
 }
 
 // Mock for setInterval
+// NOTE: This is a "fast-forward" mock that executes callbacks immediately
+// using setImmediate() rather than waiting for the actual delay.
+// This allows tests to run quickly without real timing delays.
+// The delay parameter is stored but not used for actual timing.
 const mockSetInterval = (callback, delay) => {
   callCounts.setInterval++
   const id = nextIntervalId++
@@ -286,10 +266,21 @@ const mockSetInterval = (callback, delay) => {
   // Initialize callback count for this interval
   callCounts.intervalCallbacks[id] = 0
   
+  // Safeguard: limit callback invocations to prevent runaway intervals
+  const MAX_CALLBACK_INVOCATIONS = 1000
+  
   // Create a function that runs the callback and reschedules itself
   const runCallback = () => {
     if (intervals[id]?.isActive) {
       callCounts.intervalCallbacks[id]++
+      
+      // Safeguard: stop if we've exceeded max invocations
+      if (callCounts.intervalCallbacks[id] > MAX_CALLBACK_INVOCATIONS) {
+        intervals[id].isActive = false
+        console.warn(`Interval ${id} stopped after ${MAX_CALLBACK_INVOCATIONS} invocations to prevent runaway execution`)
+        return
+      }
+      
       callback()
       // Reschedule the callback using setImmediate
       setImmediate(runCallback)
@@ -317,6 +308,10 @@ const mockClearInterval = (id) => {
 }
 
 // Mock for setTimeout
+// NOTE: This is a "fast-forward" mock that executes callbacks immediately
+// using setImmediate() rather than waiting for the actual delay.
+// This allows tests to run quickly without real timing delays.
+// The delay parameter is stored but not used for actual timing.
 const mockSetTimeout = (callback, delay) => {
   callCounts.setTimeout++
   const id = nextTimeoutId++
@@ -384,6 +379,12 @@ const getConsoleTables = () => [...consoleTables]
 const getConsoleWarnings = () => [...consoleWarnings]
 const getConsoleErrors = () => [...consoleErrors]
 const getConsoleGroups = () => [...consoleGroups]
+
+// Get call counts for all mocked functions
+// Returns an object with:
+// - Primitive counts (e.g., prompt: 5, consoleLog: 10)
+// - intervalCallbacks: object mapping interval IDs to invocation counts
+// - timeoutCallbacks: object mapping timeout IDs to invocation counts
 const getCallCounts = () => ({...callCounts})
 
 export {
