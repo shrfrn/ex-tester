@@ -1,5 +1,44 @@
 import vm from 'vm'
-import { mockPrompt, mockConfirm, mockAlert, mockConsoleLog, mockConsoleTable, mockSetInterval, mockClearInterval, resetMocks, setPromptResponses, setConfirmResponses, getAlertMessages, getConsoleMessages, getConsoleTables, getCallCounts, getActiveIntervalIds } from './mock-browser.service.js'
+import { 
+    mockPrompt, 
+    mockConfirm, 
+    mockAlert, 
+    mockConsoleLog, 
+    mockConsoleTable,
+    mockConsoleWarn,
+    mockConsoleError,
+    mockConsoleInfo,
+    mockConsoleDebug,
+    mockConsoleGroup,
+    mockConsoleGroupCollapsed,
+    mockConsoleGroupEnd,
+    mockConsoleAssert,
+    mockConsoleClear,
+    mockConsoleDir,
+    mockConsoleDirxml,
+    mockConsoleTrace,
+    mockConsoleCount,
+    mockConsoleCountReset,
+    mockConsoleTime,
+    mockConsoleTimeEnd,
+    mockConsoleTimeLog,
+    mockSetInterval, 
+    mockClearInterval,
+    mockSetTimeout,
+    mockClearTimeout,
+    resetMocks, 
+    setPromptResponses, 
+    setConfirmResponses, 
+    getAlertMessages, 
+    getConsoleMessages, 
+    getConsoleTables,
+    getConsoleWarnings,
+    getConsoleErrors,
+    getConsoleGroups,
+    getCallCounts, 
+    getActiveIntervalIds,
+    getActiveTimeoutIds
+} from './mock-browser.service.js'
 
 let context = null
 
@@ -160,13 +199,32 @@ function _initSandbox() {
 	const sandbox = {
 		console: {
 			log: mockConsoleLog,
-			table: mockConsoleTable
+			table: mockConsoleTable,
+			warn: mockConsoleWarn,
+			error: mockConsoleError,
+			info: mockConsoleInfo,
+			debug: mockConsoleDebug,
+			group: mockConsoleGroup,
+			groupCollapsed: mockConsoleGroupCollapsed,
+			groupEnd: mockConsoleGroupEnd,
+			assert: mockConsoleAssert,
+			clear: mockConsoleClear,
+			dir: mockConsoleDir,
+			dirxml: mockConsoleDirxml,
+			trace: mockConsoleTrace,
+			count: mockConsoleCount,
+			countReset: mockConsoleCountReset,
+			time: mockConsoleTime,
+			timeEnd: mockConsoleTimeEnd,
+			timeLog: mockConsoleTimeLog
 		},
 		alert: mockAlert,
 		prompt: mockPrompt,
 		confirm: mockConfirm,
 		setInterval: mockSetInterval,
 		clearInterval: mockClearInterval,
+		setTimeout: mockSetTimeout,
+		clearTimeout: mockClearTimeout,
 
         ..._getDeafultContext(),
 
@@ -226,13 +284,17 @@ function _getSideEffects() {
 		consoleOutput: getConsoleMessages(),
 		alertOutput: getAlertMessages(),
 		tableOutput: getConsoleTables(),
+		warningOutput: getConsoleWarnings(),
+		errorOutput: getConsoleErrors(),
+		groupOutput: getConsoleGroups(),
 		allOutput: [...getConsoleMessages(), ...getAlertMessages()],
 		callCounts: getCallCounts(),
 		variables: {
 			declared: Array.from(context.declaredVariables),
 			accessed: Array.from(context.accessedVariables),
 		},
-		activeIntervalIds: getActiveIntervalIds()
+		activeIntervalIds: getActiveIntervalIds(),
+		activeTimeoutIds: getActiveTimeoutIds()
 	}
 }
 
@@ -249,8 +311,5 @@ function _getDeafultContext() {
         Object,
         Array,
         Date,
-
-        setTimeout,
-        clearTimeout,
     }
 } 
