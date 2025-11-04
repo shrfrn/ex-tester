@@ -6,7 +6,7 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Define test cases
     const testCases = [
@@ -52,6 +52,8 @@ export function test(studentFilePath) {
     const mainTestCase = testCases[0]
     const result = runScript(studentCode, mainTestCase.input)
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Check that prompt is used to get input
     checkAndRecord('Prompts for user input', () => {

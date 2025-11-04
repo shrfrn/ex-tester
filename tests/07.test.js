@@ -6,7 +6,7 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // First test case - when sum is equal
     const num1 = '6'
@@ -15,6 +15,8 @@ export function test(studentFilePath) {
     const result = runScript(studentCode, [num1, num2, num3])
 
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     checkAndRecord('Prompt called at least three times', result.callCounts.prompt >= 3, 10)
     

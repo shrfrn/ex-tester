@@ -6,12 +6,14 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const celsiusTemp = '25'
     const result = runScript(studentCode, [celsiusTemp])
 
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     checkAndRecord('Prompt called at least once', result.callCounts.prompt >= 1, 10)
     

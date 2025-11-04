@@ -6,11 +6,13 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
     const result = runScript(studentCode)
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Check that biggerThan100 function exists with 1 parameter
     const functionExists = hasFunctionWithSignature('biggerThan100', 1)

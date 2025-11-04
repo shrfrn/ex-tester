@@ -6,7 +6,7 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors (10 times to ensure consistency)
     let successCount = 0

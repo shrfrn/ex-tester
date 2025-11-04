@@ -92,7 +92,17 @@ export function createTestCollector() {
         }
     }
 
-    return { checkAndRecord, getResults }
+    function executionFailed(result, studentCode) {
+        return { 
+            ...getResults(), 
+            success: false, 
+            error: result.error, 
+            weight: 1, 
+            studentCode 
+        }
+    }
+
+    return { checkAndRecord, getResults, executionFailed }
 }
 
 //
@@ -110,7 +120,14 @@ export function runScript(code, inputs = []) {
 	} catch (error) {
         console.log(error)
 		results.success = false
-		results.error = error.message
+		
+		// Enhanced error handling for stack overflow
+		if (error instanceof RangeError && error.message.includes('Maximum call stack size exceeded')) {
+			results.errorType = 'STACK_OVERFLOW'
+			results.error = 'Stack Overflow Error: Maximum call stack size exceeded. This usually happens when a function calls itself infinitely (infinite recursion). Check if any function is calling itself without a proper stopping condition.'
+		} else {
+			results.error = error.message
+		}
 	} finally {
 		results = { ...results, context, ..._getSideEffects() }
 		return results
@@ -132,7 +149,14 @@ export function runFunction(functionName, inputs = []) {
 		results.returnValue = returnValue
 	} catch (error) {
 		results.success = false
-		results.error = error.message
+		
+		// Enhanced error handling for stack overflow
+		if (error instanceof RangeError && error.message.includes('Maximum call stack size exceeded')) {
+			results.errorType = 'STACK_OVERFLOW'
+			results.error = 'Stack Overflow Error: Maximum call stack size exceeded. This usually happens when a function calls itself infinitely (infinite recursion). Check if any function is calling itself without a proper stopping condition.'
+		} else {
+			results.error = error.message
+		}
 	} finally {
 		results = { ...results, ..._getSideEffects() }
 		return results

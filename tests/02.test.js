@@ -5,13 +5,15 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const firstNumber = '10'
     const secondNumber = '3'
     const result = runScript(studentCode, [firstNumber, secondNumber])
 
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     

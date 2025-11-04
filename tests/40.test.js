@@ -6,11 +6,13 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
     const result = runScript(studentCode)
     checkAndRecord('Code executes successfully', result.success, 10)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Check that both required functions exist with correct parameters
     const getWordExists = hasFunctionWithSignature('getWord', 0)

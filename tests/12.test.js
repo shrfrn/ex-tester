@@ -6,12 +6,14 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test first with all confirming answers (man + blonde = Philip Seymour)
     const result = runScript(studentCode, [true, true])
 
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     checkAndRecord('Uses alert to start the game', () => {
         return result.callCounts.alert > 0

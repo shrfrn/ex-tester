@@ -6,7 +6,7 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
 
     // Test valid floor input
@@ -14,6 +14,8 @@ export function test(studentFilePath) {
     const result = runScript(studentCode, [normalFloor])
 
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
     
     checkAndRecord('currFloor variable defined and accessed multiple times', () => {
         // Check that currFloor is declared and accessed

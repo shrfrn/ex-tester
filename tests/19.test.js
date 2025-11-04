@@ -6,12 +6,14 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
     
     // Test that the script runs without errors
     const testInput = ['5', '12', '7', '8', '9', '10', '3', '4', '6', '1']
     const result = runScript(studentCode, testInput)
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Define the expected output messages - now using a single array for both paths
     const expectedMessages = [

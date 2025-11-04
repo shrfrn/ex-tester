@@ -6,13 +6,15 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
     // Provide the expected inputs (a=2, b=-5, c=2) for the quadratic equation example
     const result = runScript(studentCode, ['2', '-5', '2'])
     
     checkAndRecord('Code executes successfully', result.success, 10)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Check for calculating and displaying -b, 2*a, and discriminant
     const outputContainsValue = (consoleOutput, expectedValue) => {

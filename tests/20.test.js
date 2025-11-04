@@ -6,7 +6,7 @@ export function test(studentFilePath) {
     let studentCode = stripComments(studentFilePath)
     if (!studentCode) return { submitted: false }
 
-    let { checkAndRecord, getResults } = createTestCollector()
+    let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Define test datasets 
     const testCases = [
@@ -36,6 +36,8 @@ export function test(studentFilePath) {
     const mainTestCase = testCases[0]
     const result = runScript(studentCode, mainTestCase.inputs)
     checkAndRecord('Code executes successfully', result.success, 20)
+
+    if (!result.success) return executionFailed(result, studentCode)
 
     // Although the exercise asks for 10 numbers, 
     // the student code might ask for less (for brevity)
