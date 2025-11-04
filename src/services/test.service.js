@@ -42,6 +42,21 @@ import {
 
 let context = null
 
+// Freeze built-in prototypes to prevent pollution
+_freezeBuiltInPrototypes()
+
+function _freezeBuiltInPrototypes() {
+	// Freeze prototypes to prevent pollution attacks
+	Object.freeze(Object.prototype)
+	Object.freeze(Array.prototype)
+	Object.freeze(String.prototype)
+	Object.freeze(Number.prototype)
+	Object.freeze(Boolean.prototype)
+	Object.freeze(Function.prototype)
+	Object.freeze(Date.prototype)
+	Object.freeze(Math)
+}
+
 //
 // Part 1: TestCollector functions
 //
@@ -189,7 +204,20 @@ function _runInContext(code, inputs = [], timeout = 500) {
     if (confirmInputs.length > 0) setConfirmResponses(confirmInputs)
     if (promptInputs.length > 0) setPromptResponses(promptInputs)
     
-	script.runInContext(context, { timeout })
+	try {
+		script.runInContext(context, { timeout })
+	} catch (error) {
+		// Enhanced timeout error message
+		if (error.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
+			throw new Error(
+				'Code execution timeout (500ms). Common causes:\n' +
+				'1. Infinite loop without exit condition\n' +
+				'2. Function uses prompt() instead of parameters\n' +
+				'3. Sentinel loop waiting for input that never arrives'
+			)
+		}
+		throw error
+	}
 }
 
 function _initSandbox() {
@@ -232,19 +260,60 @@ function _initSandbox() {
 		declaredVariables: new Set(),
 		accessedVariables: new Set(),
 
-		document: {},
-		window: {},
+	document: {
+		// Explicitly block dangerous document methods
+		write: undefined,
+		writeln: undefined,
+		cookie: undefined,
+	},
+	window: {
+		// Explicitly block dangerous window methods
+		open: undefined,
+		location: undefined,
+		history: undefined,
+	},
 
-		// Some security precautions
-		require: undefined,
-		import: undefined,
-		Promise: undefined,
-		fetch: undefined,
-		XMLHttpRequest: undefined,
-	}
+	// SECURITY: Block code execution
+	eval: undefined,
+	Function: undefined,
+	GeneratorFunction: undefined,
+	AsyncFunction: undefined,
+	AsyncGeneratorFunction: undefined,
 
-	// Add global object references
+	// SECURITY: Block Node.js internals
+	process: undefined,
+	global: undefined,
+	Buffer: undefined,
+
+	// SECURITY: Block module system
+	require: undefined,
+	import: undefined,
+	__dirname: undefined,
+	__filename: undefined,
+	module: undefined,
+	exports: undefined,
+
+	// SECURITY: Block async/network operations
+	Promise: undefined,
+	fetch: undefined,
+	XMLHttpRequest: undefined,
+	WebSocket: undefined,
+	EventSource: undefined,
+	Worker: undefined,
+	SharedWorker: undefined,
+
+	// SECURITY: Block storage APIs
+	localStorage: undefined,
+	sessionStorage: undefined,
+	indexedDB: undefined,
+	openDatabase: undefined,
+}
+
+	// Add global object references to prevent sandbox escape
 	sandbox.global = sandbox
+	sandbox.self = sandbox
+	sandbox.top = sandbox
+	sandbox.parent = sandbox
 	sandbox.window.document = sandbox.document
 
 	// Track variable usage through proxies
@@ -257,10 +326,21 @@ function _initSandbox() {
 			}
 			return originalDefineProperty(obj, prop, descriptor)
 		},
+		// SECURITY: Prevent prototype pollution
+		setPrototypeOf: undefined,
+		__proto__: undefined,
 	}
 
 	// Create a handler for the vm context
-    const excludedProps = ['console', 'alert', 'prompt', 'confirm', 'document', 'window', 'declaredVariables', 'accessedVariables']
+    const excludedProps = [
+		'console', 'alert', 'prompt', 'confirm', 
+		'document', 'window', 
+		'declaredVariables', 'accessedVariables',
+		'self', 'top', 'parent',
+		// SECURITY: Exclude dangerous APIs from tracking
+		'eval', 'Function', 'process', 'global', 'Buffer',
+		'__proto__', 'constructor', 'prototype'
+	]
 	const handler = {
 		get: function (target, prop) {
 			if (typeof prop === 'string' && !prop.startsWith('_') && !excludedProps.includes(prop)) {
