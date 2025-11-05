@@ -1,6 +1,6 @@
 // Re-export from split services for backward compatibility
 export { createTestCollector } from './test-collector.service.js'
-export { runScript, runFunction } from './test-runner.service.js'
+export { runScript, runFunction } from './code-runner.service.js'
 export { checkReturnValueType } from './type-checker.service.js'
 export { getContext } from './sandbox.service.js'
 

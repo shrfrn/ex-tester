@@ -1,13 +1,13 @@
 import path from 'path'
 import fs from 'fs'
-
 import commandLineArgs from 'command-line-args'
 
 import { findStudentFolders, getStudentExercises } from './services/file-utils.service.js'
-import { runExerciseTests, calculateStudentScores } from './test-runner.js'
+import { runExerciseTests } from './test-runner.js'
+import { calculateStudentScores } from './services/score.service.js'
 import { generateReport } from './services/report.service.js'
 import { parseNumRange, readJsonFile } from './services/util.service.js'
-import { promptInput } from './prompt.js'
+import { promptInput } from './cli-prompts.js'
 
 // Define command line options
 const optionDefinitions = [
