@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-11-05T17:42:34.112Z",
+  "varNames": {
+    "score": -5,
+    "violations": [
+      {
+        "name": "MY_CONSTANT",
+        "position": 21,
+        "expected": "camelCase"
+      }
+    ]
+  },
+  "indentation": {
+    "score": -5,
+    "indentStyle": "space",
+    "indentSize": 4,
+    "violationCount": 7
+  },
+  "lineSpacing": {
+    "score": -2,
+    "violationCount": 3
+  },
+  "quotes": {
+    "score": -2,
+    "violationCount": 3
+  },
+  "semicolons": {
+    "score": -2,
+    "violationCount": 2
+  },
+  "codeQuality": {
+    "totalScore": 0,
+    "resultCount": 5
+  }
+}

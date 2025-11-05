@@ -56,6 +56,7 @@ export function runInContext(code, inputs = [], timeout = 500) {
 
 	try {
 		script.runInContext(context, { timeout })
+
 	} catch (error) {
 		// Enhanced timeout error message
 		if (error.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
@@ -66,6 +67,7 @@ export function runInContext(code, inputs = [], timeout = 500) {
 				'3. Sentinel loop waiting for input that never arrives'
 			)
 		}
+
 		throw error
 	}
 }
@@ -128,6 +130,7 @@ function _setupInputSimulation(inputs) {
 	const promptInputs = inputs.filter(input => typeof input !== 'boolean')
 
 	if (confirmInputs.length > 0) setConfirmResponses(confirmInputs)
+
 	if (promptInputs.length > 0) setPromptResponses(promptInputs)
 }
 
@@ -195,7 +198,6 @@ function _createSecurityRestrictions() {
 
 function _setupSandboxReferences(sandbox) {
 	// Add global object references to prevent sandbox escape
-
 	sandbox.global = sandbox
 	sandbox.self = sandbox
 	sandbox.top = sandbox
@@ -216,7 +218,6 @@ function _createProxyHandler() {
 	// Properties to exclude from variable tracking
 	// These are built-in APIs, internal properties, and dangerous APIs
 	// that shouldn't be tracked as student-declared variables
-
 	const excludedProps = [
 		'console', 'alert', 'prompt', 'confirm',      // Built-in I/O functions
 		'declaredVariables', 'accessedVariables',     // Internal tracking sets
@@ -230,28 +231,27 @@ function _createProxyHandler() {
 	return {
 		// Intercept property reads to track which variables students ACCESS
 		// Example: When student code reads 'userName', we track it
-        
 		get: (target, prop) => {
 			// Only track string properties (excludes Symbols used internally by JavaScript)
 			// and exclude built-in APIs from tracking
-
 			if (typeof prop === 'string' && !excludedProps.includes(prop)) {
 				target.accessedVariables.add(prop)
 			}
+
 			return target[prop]
 		},
 		
 		// Intercept property writes to track which variables students DECLARE
 		// Example: When student code writes 'let x = 5', we track 'x'
-
 		set: (target, prop, value) => {
 			// Only track string properties (excludes Symbols)
 			// Note: We track ALL declarations, even if they shadow built-ins
-
 			if (typeof prop === 'string') {
 				target.declaredVariables.add(prop)
 			}
+
 			target[prop] = value
+
 			return true
 		},
 	}

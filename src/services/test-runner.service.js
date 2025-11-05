@@ -8,11 +8,14 @@ export function runScript(code, inputs = []) {
 	try {
 		runInContext(code, inputs)
 		results.success = true
+
 	} catch (error) {
 		console.log(error)
 		results = { ...results, ..._formatExecutionError(error) }
+
 	} finally {
 		results = { ...results, context: getContext(), ...getSideEffects() }
+		
 		return results
 	}
 }
@@ -31,10 +34,13 @@ export function runFunction(functionName, inputs = []) {
 		var returnValue = context[functionName](...inputs)
 		results.success = true
 		results.returnValue = returnValue
+
 	} catch (error) {
 		results = { ...results, ..._formatExecutionError(error) }
+
 	} finally {
 		results = { ...results, ...getSideEffects() }
+		
 		return results
 	}
 }

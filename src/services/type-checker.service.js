@@ -9,18 +9,25 @@ export function checkReturnValueType(returnValue, expectedType, allowNullish = f
 	switch(expectedType.toLowerCase()) {
 		case 'string':
 			return typeof returnValue === 'string'
+
 		case 'number':
 			return typeof returnValue === 'number'
+
 		case 'boolean':
 			return typeof returnValue === 'boolean'
+
 		case 'array':
 			return Array.isArray(returnValue)
+
 		case 'object':
 			return typeof returnValue === 'object' && !Array.isArray(returnValue)
+
 		case 'function':
 			return typeof returnValue === 'function'
+
 		case 'any':
 			return true
+
 		default:
 			return false
 	}

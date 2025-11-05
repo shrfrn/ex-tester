@@ -17,6 +17,7 @@ export async function findStudentFolders(globPattern) {
 		// If no student pattern is found, use the exact path
 		if (!studentNamePattern) {
 			console.log('No student placeholder found, using exact path')
+
 			// Check if the path exists
 			if (!fs.existsSync(globPattern)) {
 				throw new Error(`Path does not exist: ${globPattern}`)
@@ -47,6 +48,7 @@ export async function findStudentFolders(globPattern) {
 				path: exercisePath,
 			}
 		})
+
 	} catch (error) {
 		console.error(`Error searching for student folders: ${error.message}`)
 		throw error
@@ -57,13 +59,16 @@ export async function findStudentFolders(globPattern) {
 export async function getStudentExercises(studentFolder, exerciseNumbers) {
 	try {
 		const files = await readDirAsync(studentFolder)
+
 		return files
 			.filter(file => /^\d+\.js$/.test(file) && exerciseNumbers.includes(parseInt(file)))
 			.sort((a, b) => {
 				const numA = parseInt(a)
 				const numB = parseInt(b)
+
 				return numA - numB
 			})
+
 	} catch (error) {
 		console.error(`Error reading exercises for student folder: ${studentFolder}`, error)
 		return []

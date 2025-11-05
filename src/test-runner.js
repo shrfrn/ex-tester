@@ -13,6 +13,7 @@ export async function runExerciseTests({ exerciseId, filePath, studentFolder, ex
         
         if (fs.existsSync(filePath)) {
             testResults[formattedExerciseId] = await runTests(formattedExerciseId, filePath)
+
         } else {
             testResults[formattedExerciseId] = { submitted: false }
         }
@@ -32,6 +33,7 @@ export async function runExerciseTests({ exerciseId, filePath, studentFolder, ex
             
             if (fs.existsSync(filePath)) {
                 testResults[exerciseId] = await runTests(exerciseId, filePath)
+
             } else {
                 testResults[exerciseId] = { submitted: false }
             }
@@ -70,6 +72,7 @@ export function calculateStudentScores(studentResults, exerciseCount) {
 
         for (const exercise of submittedExercises) {
             const result = student.testResults[exercise]
+
             if (result && typeof result.score === 'number' && typeof result.weight === 'number' && typeof result.maxScore === 'number') {
                 // First normalize the raw score to 0-100%
                 let normalizedScore = Math.min(100, Math.round((result.score / result.maxScore) * 100))
@@ -109,6 +112,7 @@ export async function runTests(exerciseId, studentScript) {
     const testScriptPath = path.join('..', 'tests', `${exerciseId}.test.js`)
 
     console.log('Running tests ', testScriptPath)
+
     try {
         const { test } = await import(testScriptPath)
         const results = test(studentScript)
@@ -123,13 +127,14 @@ export async function runTests(exerciseId, studentScript) {
         // Ensure score is never over maxScore (fallback to percentage if maxScore is missing)
         if (typeof results.score === 'number' && typeof results.maxScore === 'number') {
             results.score = Math.min(results.score, results.maxScore)
-            // Calculate raw percentage without code quality adjustments
             results.percentage = Math.round((results.score / results.maxScore) * 100)
         }
 
         return results
+
     } catch (error) {
         console.error(`Error running tests for ${exerciseId}:`, error)
+
         return {
             submitted: true,
             success: false,
