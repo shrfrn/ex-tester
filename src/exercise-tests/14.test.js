@@ -1,5 +1,6 @@
-import { runScript, runFunction, hasFunctionWithSignature } from '../services/test.service.js'
-import { createTestCollector } from '../services/test.service.js'
+import { runScript, runFunction } from '../services/code-runner.service.js'
+import { hasFunctionWithSignature } from '../services/type-checker.service.js'
+import { createTestCollector } from '../services/test-collector.service.js'
 import { stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {

@@ -7,8 +7,9 @@
 // part. We need to consider rephrasing instructions in the exercise.
 // TODO: This test needs to be reviewed.
 
-import { runScript, runFunction, hasFunctionWithSignature, checkReturnValueType } from '../services/test.service.js'
-import { createTestCollector } from '../services/test.service.js'
+import { runScript, runFunction } from '../services/code-runner.service.js'
+import { checkReturnValueType, hasFunctionWithSignature } from '../services/type-checker.service.js'
+import { createTestCollector } from '../services/test-collector.service.js'
 import { stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {

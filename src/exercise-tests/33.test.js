@@ -1,8 +1,8 @@
 // Again Function names are not explicitly defined in the exercise so they are very hard to test for
 // Consider using a more explicit instructions 
 
-import { runScript } from '../services/test.service.js'
-import { createTestCollector } from '../services/test.service.js'
+import { runScript } from '../services/code-runner.service.js'
+import { createTestCollector } from '../services/test-collector.service.js'
 import { stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {

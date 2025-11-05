@@ -1,3 +1,5 @@
+import { getContext } from './sandbox.service.js'
+
 export function checkReturnValueType(returnValue, expectedType, allowNullish = false) {
 	// Check if returnValue exists, unless nullish values are allowed
 	if ((returnValue === undefined || returnValue === null) && !allowNullish) return false
@@ -34,7 +36,9 @@ export function checkReturnValueType(returnValue, expectedType, allowNullish = f
 }
 
 // Check if a function with the specified name and parameter count exists in the code
-export function hasFunctionWithSignature(context, functionName, expectedParamCount) {
+export function hasFunctionWithSignature(functionName, expectedParamCount) {
+	const context = getContext()
+
 	// Check if the context has been initialized
 	if (!context) throw new Error('Context not initialized')
 
