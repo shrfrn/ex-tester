@@ -219,9 +219,7 @@ export function exerciseDetails(exerciseId, result) {
     </table>
     ${result.studentCode ? codeSection(result.studentCode) : ''}
     ${result.failed && result.failed.length > 0 ? 
-      failedTestsSection(result.failed, result.passed ? result.passed.length : 0) : 
-      (result.failedTests && result.failedTests.length > 0 ? 
-        legacyFailedTestsSection(result.failedTests, result.totalTests) : '')}
+      failedTestsSection(result.failed, result.passed ? result.passed.length : 0) : ''}
   </details>
 
   <hr>`
@@ -261,40 +259,6 @@ function failedTestsSection(failed, passedCount) {
           <tr>
             <td>${test.description}</td>
             <td>${test.score}</td>
-          </tr>`
-  }
-
-  html += `
-        </tbody>
-      </table>
-    </details>`
-
-  return html
-}
-
-// Component for legacy failed tests section
-function legacyFailedTestsSection(failedTests, totalTests) {
-  const failedCount = failedTests.length
-  const totalTestCount = totalTests || failedTests.length
-  const penaltyPoints = failedTests.reduce((sum, test) => sum + (test.penalty || 0), 0)
-
-  let html = `
-    <details class="indent-1">
-      <summary><strong>${failedCount} of ${totalTestCount} tests failed - <code>${penaltyPoints} points</code></strong></summary>
-      <table>
-        <thead>
-          <tr>
-            <th>Test</th>
-            <th>Penalty</th>
-          </tr>
-        </thead>
-        <tbody>`
-
-  for (const test of failedTests) {
-    html += `
-          <tr>
-            <td>${test.name}</td>
-            <td>${test.penalty}</td>
           </tr>`
   }
 

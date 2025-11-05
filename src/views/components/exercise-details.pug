@@ -37,7 +37,5 @@ mixin exerciseDetails(exerciseId, result)
     
     if result.failed && result.failed.length > 0
       +failedTests(result.failed, result.passed ? result.passed.length : 0)
-    else if result.failedTests && result.failedTests.length > 0
-      +legacyFailedTests(result.failedTests, result.totalTests)
   
   hr 

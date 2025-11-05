@@ -85,21 +85,6 @@ Exercises Submitted | Submission % | Success Rate | Score |
                 
                 report += `</details>\n`
             }
-            // Fallback to the original failedTests implementation if the new format isn't available
-            else if (result.failedTests && result.failedTests.length > 0) {
-                const totalTests = result.totalTests || result.failedTests.length
-                const failedCount = result.failedTests.length
-                const penaltyPoints = result.failedTests.reduce((sum, test) => sum + (test.penalty || 0), 0)
-                
-                report += `<details class="indent-1">\n<summary><strong>${failedCount} of ${totalTests} tests failed - <code>${penaltyPoints} points</code></strong></summary>\n\n`
-                report += `| test | penalty |\n| --- | --- |\n`
-                
-                for (const test of result.failedTests) {
-                    report += `| ${test.name} | ${test.penalty} |\n`
-                }
-                
-                report += `</details>\n`
-            }
             
             report += `</details>\n\n---\n\n`
         }

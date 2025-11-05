@@ -67,9 +67,22 @@ const resetMocks = () => {
     callCounts[key] = typeof value === 'object' ? {} : 0
   })
   
-  // Reset intervals and timeouts
-  Object.keys(intervals).forEach(id => delete intervals[id])
-  Object.keys(timeouts).forEach(id => delete timeouts[id])
+  // Clear and reset intervals
+  Object.keys(intervals).forEach(id => {
+    if (intervals[id].nodeIntervalId) {
+      clearInterval(intervals[id].nodeIntervalId)
+    }
+    delete intervals[id]
+  })
+  
+  // Clear and reset timeouts
+  Object.keys(timeouts).forEach(id => {
+    if (timeouts[id].nodeTimeoutId) {
+      clearTimeout(timeouts[id].nodeTimeoutId)
+    }
+    delete timeouts[id]
+  })
+  
   nextIntervalId = 1
   nextTimeoutId = 1
   currentGroupDepth = 0
@@ -255,10 +268,9 @@ const mockConsoleTimeLog = (label = 'default', ...args) => {
 }
 
 // Mock for setInterval
-// NOTE: This is a "fast-forward" mock that executes callbacks immediately
-// using setImmediate() rather than waiting for the actual delay.
-// This allows tests to run quickly without real timing delays.
-// The delay parameter is stored but not used for actual timing.
+// NOTE: This uses actual Node.js setInterval with a fast-forward delay (1ms)
+// to allow tests to run quickly while avoiding infinite loop issues.
+// The delay parameter is stored for reference but actual timing uses 1ms.
 const mockSetInterval = (callback, delay) => {
   callCounts.setInterval++
   const id = nextIntervalId++
@@ -269,32 +281,30 @@ const mockSetInterval = (callback, delay) => {
   // Safeguard: limit callback invocations to prevent runaway intervals
   const MAX_CALLBACK_INVOCATIONS = 1000
   
-  // Create a function that runs the callback and reschedules itself
-  const runCallback = () => {
-    if (intervals[id]?.isActive) {
-      callCounts.intervalCallbacks[id]++
-      
-      // Safeguard: stop if we've exceeded max invocations
-      if (callCounts.intervalCallbacks[id] > MAX_CALLBACK_INVOCATIONS) {
-        intervals[id].isActive = false
-        console.warn(`Interval ${id} stopped after ${MAX_CALLBACK_INVOCATIONS} invocations to prevent runaway execution`)
-        return
-      }
-      
-      callback()
-      // Reschedule the callback using setImmediate
-      setImmediate(runCallback)
+  // Wrap callback with safeguard and tracking
+  const wrappedCallback = () => {
+    if (!intervals[id]?.isActive) return
+    
+    callCounts.intervalCallbacks[id]++
+    
+    // Safeguard: stop if we've exceeded max invocations
+    if (callCounts.intervalCallbacks[id] > MAX_CALLBACK_INVOCATIONS) {
+      mockClearInterval(id)
+      console.warn(`Interval ${id} stopped after ${MAX_CALLBACK_INVOCATIONS} invocations to prevent runaway execution`)
+      return
     }
+    
+    callback()
   }
+  
+  // Use actual Node.js setInterval with fast-forward delay (1ms)
+  const nodeIntervalId = setInterval(wrappedCallback, 1)
   
   intervals[id] = {
-    callback: runCallback,
+    nodeIntervalId,
     delay,
-    isActive: true
+    isActive: true,
   }
-  
-  // Start the first callback immediately
-  setImmediate(runCallback)
   
   return id
 }
@@ -302,16 +312,21 @@ const mockSetInterval = (callback, delay) => {
 // Mock for clearInterval
 const mockClearInterval = (id) => {
   callCounts.clearInterval++
+  
   if (intervals[id]) {
     intervals[id].isActive = false
+    
+    // Clear the actual Node.js interval
+    if (intervals[id].nodeIntervalId) {
+      clearInterval(intervals[id].nodeIntervalId)
+    }
   }
 }
 
 // Mock for setTimeout
-// NOTE: This is a "fast-forward" mock that executes callbacks immediately
-// using setImmediate() rather than waiting for the actual delay.
-// This allows tests to run quickly without real timing delays.
-// The delay parameter is stored but not used for actual timing.
+// NOTE: This uses actual Node.js setTimeout with a fast-forward delay (1ms)
+// to allow tests to run quickly while maintaining proper async behavior.
+// The delay parameter is stored for reference but actual timing uses 1ms.
 const mockSetTimeout = (callback, delay) => {
   callCounts.setTimeout++
   const id = nextTimeoutId++
@@ -319,23 +334,23 @@ const mockSetTimeout = (callback, delay) => {
   // Initialize callback count for this timeout
   callCounts.timeoutCallbacks[id] = 0
   
-  // Create a function that runs the callback once
-  const runCallback = () => {
-    if (timeouts[id]?.isActive) {
-      callCounts.timeoutCallbacks[id]++
-      callback()
-      timeouts[id].isActive = false
-    }
+  // Wrap callback with tracking
+  const wrappedCallback = () => {
+    if (!timeouts[id]?.isActive) return
+    
+    callCounts.timeoutCallbacks[id]++
+    callback()
+    timeouts[id].isActive = false
   }
+  
+  // Use actual Node.js setTimeout with fast-forward delay (1ms)
+  const nodeTimeoutId = setTimeout(wrappedCallback, 1)
   
   timeouts[id] = {
-    callback: runCallback,
+    nodeTimeoutId,
     delay,
-    isActive: true
+    isActive: true,
   }
-  
-  // Schedule the callback using setImmediate
-  setImmediate(runCallback)
   
   return id
 }
@@ -343,8 +358,14 @@ const mockSetTimeout = (callback, delay) => {
 // Mock for clearTimeout
 const mockClearTimeout = (id) => {
   callCounts.clearTimeout++
+  
   if (timeouts[id]) {
     timeouts[id].isActive = false
+    
+    // Clear the actual Node.js timeout
+    if (timeouts[id].nodeTimeoutId) {
+      clearTimeout(timeouts[id].nodeTimeoutId)
+    }
   }
 }
 
