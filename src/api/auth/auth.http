@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:3000/api/auth
+
+@signupUsername = tester-1
+@signupPassword = 123456789
+@signupFullname = Test Runner
+@signupPhone = +123456789
+
+### Create a brand new user and capture the session cookie
+# @name signup
+POST {{baseUrl}}/signup
+Content-Type: application/json
+
+{
+  "username": "{{signupUsername}}",
+  "password": "{{signupPassword}}",
+  "fullname": "{{signupFullname}}",
+  "phone": "{{signupPhone}}"
+}
+
+### Log in with the same credentials (uses cookie jar automatically)
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "{{signupUsername}}",
+  "password": "{{signupPassword}}"
+}
+
+### Attempt a login with an incorrect password to exercise the failure path
+# @name loginInvalidPassword
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "{{signupUsername}}",
+  "password": "wrong-{{signupPassword}}"
+}
+
+### Clear the session cookie to finish the flow
+# @name logout
+POST {{baseUrl}}/logout
+

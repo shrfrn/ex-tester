@@ -3,6 +3,10 @@ import express from 'express'
 import path from 'path'
 
 import { initReportService } from '../../services/report.service.js'
+import { setupAsyncLocalStorage } from '../../middlewares/setupAls.middleware.js'
+
+import { authRoutes } from '../../api/auth/auth.routes.js'
+import { testRoutes } from '../../api/test/test.routes.js'
 
 export function initReportRenderer(app) {
     initReportService((view, options) => {
@@ -45,5 +49,9 @@ export function configureApp(app, __dirname) {
 
     // Parse JSON bodies
     app.use(express.json())
+
+    app.all('*all', setupAsyncLocalStorage)
+    app.use('/api/test', testRoutes)
+    app.use('/api/auth', authRoutes)
 }
 

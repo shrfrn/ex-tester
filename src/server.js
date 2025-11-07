@@ -3,8 +3,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { configureApp, initReportRenderer } from './server/config/app.config.js'
-import { initMulter } from './server/config/upload.config.js'
-import { handleTestRequest } from './server/endpoints/test.endpoint.js'
 import { handleIndex } from './server/endpoints/index.endpoint.js'
 
 // Set up __dirname equivalent for ES modules
@@ -21,11 +19,7 @@ initReportRenderer(app)
 // Configure app (CORS, middleware, static files, view engine)
 configureApp(app, __dirname)
 
-// Initialize multer for file uploads
-const upload = initMulter()
-
 // Set up routes
-app.post('/api/test', upload.single('file'), handleTestRequest)
 app.get('/', handleIndex)
 
 // Start the server

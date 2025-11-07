@@ -1,0 +1,33 @@
+7.11.2025, 10:50:32 - INFO - auth.service - signup with username: tester1762505432, fullname: Test Runner
+7.11.2025, 10:50:32 - INFO - auth.service - login with username: tester1762505432
+7.11.2025, 10:50:32 - INFO - User signup: | {"username":"tester1762505432","password":"$2b$10$Jq6fbFG/2vr0iInCR0qyyOPxHV2X5q/..BVixbUEjYA2yr2FBNNCq","fullname":"Test Runner","phone":"+123456789","_id":"690db2d888340e6cec7fdb4a"}
+7.11.2025, 10:51:39 - INFO - auth.service - login with username: tester1762505499
+7.11.2025, 10:51:39 - ERROR - Failed to Login Invalid username or password
+7.11.2025, 10:53:25 - INFO - auth.service - signup with username: tester-1, fullname: Test Runner
+7.11.2025, 10:53:25 - INFO - auth.service - login with username: tester-1
+7.11.2025, 10:53:25 - INFO - User signup: | {"username":"tester-1","password":"$2b$10$Qfj0wB8C.SutpOF8SxcOl.6gfKfaGu40SNrN8VajpQ/S.fTezuj3u","fullname":"Test Runner","phone":"+123456789","_id":"690db38588340e6cec7fdb4b"}
+7.11.2025, 10:53:39 - INFO - auth.service - login with username: tester-1
+7.11.2025, 10:53:39 - INFO - User login:  | {"_id":"690db38588340e6cec7fdb4b","username":"tester-1","fullname":"Test Runner","phone":"+123456789"}
+7.11.2025, 10:53:46 - INFO - auth.service - login with username: tester-1
+7.11.2025, 10:53:46 - ERROR - Failed to Login Invalid username or password
+7.11.2025, 10:53:50 - INFO - auth.service - login with username: tester-1
+7.11.2025, 10:53:50 - INFO - User login:  | {"_id":"690db38588340e6cec7fdb4b","username":"tester-1","fullname":"Test Runner","phone":"+123456789"}
+7.11.2025, 16:15:23 - INFO - auth.service - login with username: undefined
+7.11.2025, 16:15:23 - ERROR - Failed to Login Invalid username or password
+7.11.2025, 16:16:03 - INFO - auth.service - signup with username: undefined, fullname: undefined
+7.11.2025, 16:16:03 - ERROR - Failed to signup Missing required signup information
+7.11.2025, 16:18:08 - INFO - auth.service - login with username: undefined
+7.11.2025, 16:18:08 - ERROR - Failed to Login Invalid username or password
+7.11.2025, 17:52:57 - INFO - auth.service - login with username: tester-1
+7.11.2025, 17:52:57 - INFO - User login:  | {"_id":"690db38588340e6cec7fdb4b","username":"tester-1","fullname":"Test Runner","phone":"+123456789"}
+7.11.2025, 17:53:18 - INFO - auth.service - signup with username: bob, fullname: undefined
+7.11.2025, 17:53:18 - ERROR - Failed to signup Missing required signup information
+7.11.2025, 17:54:57 - INFO - auth.service - signup with username: bob, fullname: undefined
+7.11.2025, 17:54:57 - ERROR - Failed to signup Missing required signup information
+7.11.2025, 17:58:10 - ERROR - Failed to signup Missing required signup information
+7.11.2025, 17:58:10 - INFO - auth.service - signup with username: bob, fullname: undefined
+7.11.2025, 17:59:19 - INFO - auth.service - signup with username: bob, fullname: bob
+7.11.2025, 17:59:19 - INFO - auth.service - login with username: bob
+7.11.2025, 17:59:19 - INFO - User signup: | {"username":"bob","password":"$2b$10$qJBNtXrA9xaJbsQEP1DaneBIioIeCSLBxMGOhiNe0Du3nZZXjomIK","fullname":"bob","phone":"123","_id":"690e1757a1a9af8291c0cf4a"}
+7.11.2025, 18:00:05 - INFO - auth.service - login with username: bob
+7.11.2025, 18:00:05 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
