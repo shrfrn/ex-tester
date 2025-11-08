@@ -2,6 +2,11 @@ import {dbService} from '../../services/db.service.js'
 import {logger} from '../../services/logger.service.js'
 import { ObjectId } from 'mongodb'
 
+export const ACTIVITY_TYPE = {
+    RUN: 1,
+    TEST: 2,
+}
+
 export const userService = {
 	add, // Create (Signup)
 	getById, // Read (Profile page)
@@ -9,6 +14,7 @@ export const userService = {
 	remove, // Delete (remove user)
 	query, // List (of users)
 	getByUsername, // Used for Login
+    addActivities, // Add activity(runs/tests) to user
 }
 
 async function query(filterBy = {}) {
@@ -120,3 +126,17 @@ function _buildCriteria(filterBy) {
 	}
 	return criteria
 }
+
+async function addActivities(userId, activities, type = ACTIVITY_TYPE.RUN) {
+    console.log('activities', activities)
+    activities = activities.map(activity => ({ ... activity, type }))
+
+    try {
+        const criteria = { _id: ObjectId.createFromHexString(userId) }
+        const collection = await dbService.getCollection('user')
+        await collection.updateOne(criteria, { $push: { activities: { $each: activities }}})
+    } catch (err) {
+        logger.error(`cannot add activities to user ${userId}`, err)
+        throw err
+    }
+}   

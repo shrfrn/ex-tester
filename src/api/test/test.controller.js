@@ -1,21 +1,30 @@
 import fs from 'fs'
 
 import { executeTest } from './test.service.js'
+import { userService } from '../user/user.service.js'
 
 export async function runTest(req, res) {
+    const filePath = req.file.path
     const validation = validateTestRequest(req)
 
     if (!validation.valid) {
-        res.status(validation.statusCode).json({ error: validation.error, })
+        res.status(validation.statusCode).json({ error: validation.error })
         return
     }
 
-    const exerciseId = req.body.exerciseId
-    const studentName = req.body.studentName || 'Anonymous'
-    const filePath = req.file.path
+    const testOptions = {
+        exerciseId: req.body.exerciseId,
+        studentName: req.loggedinUser.fullname,
+        filePath,
+    }
 
     try {
-        const htmlReport = await executeTest({ exerciseId, studentName, filePath })
+        const htmlReport = await executeTest(testOptions)
+        
+        if (req.body.runnerLog) {
+            const runnerLog = JSON.parse(req.body.runnerLog)
+            await userService.addActivities(req.loggedinUser._id, runnerLog)
+        }
 
         res.setHeader('Content-Type', 'text/html')
         res.send(htmlReport)

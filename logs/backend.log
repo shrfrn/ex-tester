@@ -71,3 +71,5 @@
 8.11.2025, 10:58:03 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
 8.11.2025, 11:03:22 - INFO - auth.service - login with username: bob
 8.11.2025, 11:03:22 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+8.11.2025, 12:46:39 - INFO - auth.service - login with username: bob
+8.11.2025, 12:46:39 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
