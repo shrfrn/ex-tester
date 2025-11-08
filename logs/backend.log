@@ -31,3 +31,43 @@
 7.11.2025, 17:59:19 - INFO - User signup: | {"username":"bob","password":"$2b$10$qJBNtXrA9xaJbsQEP1DaneBIioIeCSLBxMGOhiNe0Du3nZZXjomIK","fullname":"bob","phone":"123","_id":"690e1757a1a9af8291c0cf4a"}
 7.11.2025, 18:00:05 - INFO - auth.service - login with username: bob
 7.11.2025, 18:00:05 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:04:46 - INFO - auth.service - login with username: bob
+7.11.2025, 18:04:47 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:09:29 - INFO - auth.service - login with username: bob
+7.11.2025, 18:09:30 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:10:49 - INFO - auth.service - login with username: bob
+7.11.2025, 18:10:49 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:15:07 - INFO - auth.service - login with username: bob
+7.11.2025, 18:15:08 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:16:52 - INFO - auth.service - login with username: bob
+7.11.2025, 18:16:53 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:19:17 - INFO - auth.service - login with username: bob
+7.11.2025, 18:19:17 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:19:56 - INFO - auth.service - login with username: bob
+7.11.2025, 18:19:56 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:28:21 - INFO - auth.service - login with username: bob
+7.11.2025, 18:28:21 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:31:49 - INFO - auth.service - login with username: bob
+7.11.2025, 18:31:49 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:39:10 - INFO - auth.service - login with username: bob
+7.11.2025, 18:39:10 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:45:31 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:45:32 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:46:42 - INFO - auth.service - login with username: bob
+7.11.2025, 18:46:42 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:55:42 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:55:42 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:57:01 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:57:01 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:57:17 - INFO - auth.service - login with username: bob
+7.11.2025, 18:57:17 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:57:36 - INFO - auth.service - login with username: bob
+7.11.2025, 18:57:36 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}
+7.11.2025, 18:59:50 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+7.11.2025, 18:59:50 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+7.11.2025, 19:00:19 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+7.11.2025, 19:00:19 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+8.11.2025, 10:58:03 - INFO - auth.service - login with username: bob | 690e1757a1a9af8291c0cf4a
+8.11.2025, 10:58:03 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"} | 690e1757a1a9af8291c0cf4a
+8.11.2025, 11:03:22 - INFO - auth.service - login with username: bob
+8.11.2025, 11:03:22 - INFO - User login:  | {"_id":"690e1757a1a9af8291c0cf4a","username":"bob","fullname":"bob","phone":"123"}

@@ -3,8 +3,6 @@ import fs from 'fs'
 import { executeTest } from './test.service.js'
 
 export async function runTest(req, res) {
-    console.log(req)
-
     const validation = validateTestRequest(req)
 
     if (!validation.valid) {

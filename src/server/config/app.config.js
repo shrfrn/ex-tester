@@ -1,4 +1,5 @@
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import express from 'express'
 import path from 'path'
 
@@ -32,6 +33,10 @@ export function getCorsOptions() {
         methods: ['GET', 'POST', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,  // Allow cookies to be sent with requests
+
+        // For local development
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
     }
 }
 
@@ -42,6 +47,7 @@ export function configureApp(app, __dirname) {
 
     // Apply CORS middleware
     app.use(cors(getCorsOptions()))
+    app.use(cookieParser())
 
     // Serve static files
     app.use(express.static(path.join(__dirname, 'public')))
@@ -50,7 +56,7 @@ export function configureApp(app, __dirname) {
     // Parse JSON bodies
     app.use(express.json())
 
-    app.all('*all', setupAsyncLocalStorage)
+    app.use(setupAsyncLocalStorage)
     app.use('/api/test', testRoutes)
     app.use('/api/auth', authRoutes)
 }

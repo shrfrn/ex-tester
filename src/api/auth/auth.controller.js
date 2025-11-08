@@ -28,7 +28,8 @@ export async function signup(req, res) {
 		logger.info('User signup:', account)
 		
         const loginToken = authService.getLoginToken(user)
-		res.cookie('loginToken', loginToken, { sameSite: 'None', secure: true })
+		res.cookie('loginToken', loginToken, { sameSite: 'Lax' })
+		// res.cookie('loginToken', loginToken, { sameSite: 'None', secure: true })
 		res.json(user)
 	} catch (err) {
 		logger.error('Failed to signup ' + err)
@@ -38,7 +39,8 @@ export async function signup(req, res) {
 
 export async function logout(req, res) {
 	try {
-		res.clearCookie('loginToken')
+        console.log('logout')
+		res.clearCookie('loginToken', { sameSite: 'None', secure: true })
 		res.send({ msg: 'Logged out successfully' })
 	} catch (err) {
 		res.status(400).send({ err: 'Failed to logout' })
