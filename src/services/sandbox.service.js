@@ -238,6 +238,13 @@ function _createProxyHandler() {
 			if (typeof prop === 'string' && !excludedProps.includes(prop)) {
 				target.accessedVariables.add(prop)
 			}
+			
+			// IMPORTANT: Throw ReferenceError for undeclared variables to support strict mode
+			// Without this, strict mode doesn't work properly (a -= 9 won't throw error)
+			if (!(prop in target)) {
+				throw new ReferenceError(`${prop} is not defined`)
+			}
+			
 			return target[prop]
 		},
 		
@@ -269,5 +276,13 @@ function _getDefaultContext() {
 		Object,
 		Array,
 		Date,
+		// Error constructors needed for proper error handling and stack traces
+		Error,
+		TypeError,
+		ReferenceError,
+		SyntaxError,
+		RangeError,
+		URIError,
+		EvalError,
 	}
 }

@@ -1,19 +1,18 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test first with all confirming answers (man + blonde = Philip Seymour)
-    const result = runScript(studentCode, [true, true])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [true, true])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Uses alert to start the game', () => {
         return result.callCounts.alert > 0
@@ -34,13 +33,13 @@ export function test(studentFilePath) {
         const ifPattern = /if\s*\(/
         const elsePattern = /else/
         
-        return ifPattern.test(studentCode) && elsePattern.test(studentCode)
+        return ifPattern.test(strippedCode) && elsePattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Has nested if/else structure', () => {
         // Check for nested if/else structure
         const nestedIfPattern = /if\s*\([^{]*\)\s*{[^}]*if\s*\(/
-        return nestedIfPattern.test(studentCode)
+        return nestedIfPattern.test(strippedCode)
     }, 10)
 
     // Test all four possible answer combinations
@@ -62,7 +61,7 @@ export function test(studentFilePath) {
         const responseResults = []
         
         testCases.forEach((testCase, i) => {
-            const testResult = runScript(studentCode, testCase)
+            const testResult = runScript(originalCode, testCase)
             
             // Check if the output contains the correct actor
             responseResults.push(
@@ -73,5 +72,5 @@ export function test(studentFilePath) {
         return responseResults.every(result => result === true)
     }, 20)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

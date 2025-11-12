@@ -1,21 +1,20 @@
 import { runScript, runFunction } from '../services/code-runner.service.js'
 import { hasFunctionWithSignature } from '../services/type-checker.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
     // Provide the expected inputs (a=2, b=-5, c=2) for the quadratic equation example
-    const result = runScript(studentCode, ['2', '-5', '2'])
-    
-    checkAndRecord('Code executes successfully', result.success, 10)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, ['2', '-5', '2'])
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check for calculating and displaying -b, 2*a, and discriminant
     const outputContainsValue = (consoleOutput, expectedValue) => {
@@ -25,8 +24,8 @@ export function test(studentFilePath) {
 
     // Check for variable prompts
     checkAndRecord('Prompts for coefficient values', () => {
-        return studentCode.includes('prompt(') && 
-               studentCode.match(/prompt\(/g).length >= 3
+        return strippedCode.includes('prompt(') && 
+               strippedCode.match(/prompt\(/g).length >= 3
     }, 10)
 
     // Check for basic calculations (Part I)
@@ -81,7 +80,7 @@ export function test(studentFilePath) {
     }, 15)
 
     // Also test with another set of inputs for edge cases
-    const zeroDiscriminantResult = runScript(studentCode, ['1', '2', '1'])
+    const zeroDiscriminantResult = runScript(originalCode, ['1', '2', '1'])
 
     checkAndRecord('Handles zero discriminant case properly (bonus)', () => {
         // For a=1, b=2, c=1, discriminant = 0 and solution = -1
@@ -89,7 +88,7 @@ export function test(studentFilePath) {
                containsSolution(zeroDiscriminantResult.consoleOutput, -1)
     }, 7.5)
 
-    const negativeDiscriminantResult = runScript(studentCode, ['1', '1', '1'])
+    const negativeDiscriminantResult = runScript(originalCode, ['1', '1', '1'])
 
     checkAndRecord('Handles negative discriminant case properly (bonus)', () => {
         // For a=1, b=1, c=1, discriminant is negative
@@ -103,7 +102,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

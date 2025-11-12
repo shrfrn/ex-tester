@@ -1,19 +1,19 @@
 import { runScript, runFunction } from '../services/code-runner.service.js'
 import { hasFunctionWithSignature } from '../services/type-checker.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Run the script to define the function
-    const result = runScript(studentCode)
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode)
+    if (!result.success) return executionFailed(result, originalCode)
     
     // Check that greetUser function exists with 1 parameter
     const functionExists = hasFunctionWithSignature('greetUser', 1)
@@ -24,12 +24,12 @@ export function test(studentFilePath) {
     // Check parameter name usage if function exists
     if (functionExists) {
         const paramPattern = /function\s+greetUser\s*\(\s*([a-zA-Z0-9_$]+)\s*\)/
-        const matches = studentCode.match(paramPattern)
+        const matches = strippedCode.match(paramPattern)
         const paramName = matches && matches.length > 1 ? matches[1] : null
         
         if (paramName) {
             checkAndRecord('Parameter name is used in function body', () => {
-                const functionBody = studentCode.match(/function\s+greetUser\s*\([^)]*\)\s*{([^}]*)}/s)
+                const functionBody = strippedCode.match(/function\s+greetUser\s*\([^)]*\)\s*{([^}]*)}/s)
                 return functionBody && functionBody[1].includes(paramName)
             }, 10)
         } else {
@@ -76,7 +76,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

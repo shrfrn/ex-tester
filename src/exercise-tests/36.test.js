@@ -4,16 +4,18 @@
 
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode)
+    const result = runScript(originalCode)
 
     // Define test cases
     const testCases = [
@@ -57,12 +59,12 @@ export function test(studentFilePath) {
 
     // Check that indexOf method is used as required
     checkAndRecord('Uses indexOf method', () => {
-        return studentCode.includes('.indexOf')
+        return strippedCode.includes('.indexOf')
     }, 10)
 
     // Run all test cases
     testCases.forEach(testCase => {
-        const testResult = runScript(studentCode, testCase.input)
+        const testResult = runScript(originalCode, testCase.input)
         const success = testResult.success
         const allOutputText = success ? testResult.allOutput.join(' ') : ''
         
@@ -89,7 +91,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

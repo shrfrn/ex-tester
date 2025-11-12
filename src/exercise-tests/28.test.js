@@ -3,11 +3,13 @@
 
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
@@ -24,21 +26,19 @@ export function test(studentFilePath) {
 
     // Run the first test case and check basic execution
     const mainTestCase = testCases[0]
-    const result = runScript(studentCode, mainTestCase.inputs)
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, mainTestCase.inputs)
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check for loop usage
     checkAndRecord('Uses a loop to find GCD', () => {
         const loopPattern = /for\s*\(|while\s*\(/
-        return loopPattern.test(studentCode)
+        return loopPattern.test(strippedCode)
     }, 10)
 
     // Check for modulus operator
     checkAndRecord('Uses modulus operator to check divisibility', () => {
         const modulusPattern = /\d+\s*%\s*\d+/  // Match numbers with % between them, allowing whitespace
-        return modulusPattern.test(studentCode)
+        return modulusPattern.test(strippedCode)
     }, 10)
 
     // Run all test cases and check results
@@ -46,7 +46,7 @@ export function test(studentFilePath) {
     const totalTestCases = testCases.length
     
     testCases.forEach(testCase => {
-        const testResult = runScript(studentCode, testCase.inputs)
+        const testResult = runScript(originalCode, testCase.inputs)
         
         if (testResult.success) {
             // Check if any output contains the expected GCD
@@ -66,7 +66,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

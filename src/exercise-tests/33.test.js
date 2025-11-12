@@ -3,16 +3,18 @@
 
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode)
+    const result = runScript(originalCode)
     
     // Define test cases with the same inputs for all three parts
     const testCases = [
@@ -41,14 +43,12 @@ export function test(studentFilePath) {
     
     // Run all tests
     testCases.forEach(testCase => {
-        const testResult = runScript(studentCode, [testCase.input])
+        const testResult = runScript(originalCode, [testCase.input])
         const success = testResult.success
         const allOutputText = success ? testResult.allOutput.join(' ') : ''
         const allOutputLower = allOutputText.toLowerCase()
         
         // Check that the code executes successfully
-        checkAndRecord('Code executes successfully', success, 10)
-
         // PART I: Test vowel count
         const vowels = ['a', 'e', 'i', 'o', 'u']
         
@@ -79,7 +79,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 }

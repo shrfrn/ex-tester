@@ -1,19 +1,19 @@
 import { runScript, runFunction } from '../services/code-runner.service.js'
 import { hasFunctionWithSignature } from '../services/type-checker.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode)
-    checkAndRecord('Code executes successfully', result.success, 10)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode)
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check that myPow function exists with 2 parameters
     const functionExists = hasFunctionWithSignature('myPow', 2)
@@ -23,13 +23,13 @@ export function test(studentFilePath) {
 
     // Check that Math.pow is not used
     checkAndRecord('Does not use Math.pow', () => {
-        return !studentCode.includes('Math.pow')
+        return !strippedCode.includes('Math.pow')
     }, 10)
     
     // Check if a while loop is used (not for or do-while)
     checkAndRecord('Uses a while loop to calculate the power', () => {
         const whileLoopPattern = /while\s*\(/
-        return whileLoopPattern.test(studentCode)
+        return whileLoopPattern.test(strippedCode)
     }, 10)
 
     // Define test cases from the exercise
@@ -61,7 +61,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

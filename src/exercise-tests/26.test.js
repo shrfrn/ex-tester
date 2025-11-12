@@ -1,10 +1,12 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
@@ -13,7 +15,7 @@ export function test(studentFilePath) {
     let results = []
     
     for (let i = 0; i < 10; i++) {
-        const result = runScript(studentCode)
+        const result = runScript(originalCode)
         if (result.success) {
             successCount++
             results.push(result)
@@ -24,20 +26,20 @@ export function test(studentFilePath) {
 
     // Test that Math.random is used
     checkAndRecord('Uses Math.random', () => {
-        return studentCode.includes('Math.random')
+        return strippedCode.includes('Math.random')
     }, 10)
     
     // Check for loops - should be using a loop to generate multiple numbers
     checkAndRecord('Uses a loop to generate numbers', () => {
         const loopPattern = /for\s*\(|while\s*\(/
-        return loopPattern.test(studentCode)
+        return loopPattern.test(strippedCode)
     }, 10)
     
     // Check that the code includes variables to track the previous number
     checkAndRecord('Tracks previous number for calculations', () => {
         // Look for variable assignment patterns that might store previous values
         const variablePattern = /(let|var|const)\s+\w+\s*=\s*\w+/
-        return variablePattern.test(studentCode)
+        return variablePattern.test(strippedCode)
     }, 10)
     
     // Check for output of at least 10 numbers
@@ -102,8 +104,8 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: successCount > 0, 
         error: successCount === 0 ? "Failed to execute successfully" : null, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 }
 

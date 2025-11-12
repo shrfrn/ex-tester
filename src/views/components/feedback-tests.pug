@@ -1,0 +1,50 @@
+mixin feedbackTests(passed, failed)
+  .feedback-tests
+    
+    if passed && passed.length > 0
+      details.passed-tests
+        summary
+          strong Passed Tests (#{passed.length})
+        
+        ul.test-list
+          each test in passed
+            li.test-item= test.description
+    
+    if failed && failed.length > 0
+      .failed-tests
+        .failed-header
+          strong Failed Tests (#{failed.length})
+        
+        ul.test-list
+          each test in failed
+            li.test-item= test.description
+  
+  hr
+
+mixin feedbackCodeQuality(codeQuality)
+  - 
+    const allViolations = codeQuality.results
+      .filter(r => r.violations && r.violations.length > 0)
+      .flatMap(r => r.violations)
+    const violationCount = allViolations.length
+  
+  .code-quality-feedback
+    .quality-header
+      strong Code Quality Issues: 
+      span.count #{violationCount} #{violationCount === 1 ? 'issue' : 'issues'}
+      span.penalty (#{codeQuality.score} points)
+    
+    ul.quality-issues
+      each violation in allViolations
+        li.quality-issue
+          if violation.line
+            span.line-number Line #{violation.line}: 
+          else if violation.startLine
+            span.line-number Lines #{violation.startLine}-#{violation.endLine}: 
+          if violation.message
+            span.message= violation.message
+          else if violation.expected
+            span.message Variable '#{violation.name}' should use #{violation.expected}
+  
+  hr
+

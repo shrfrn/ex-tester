@@ -1,27 +1,26 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const firstNumber = '15'
     const secondNumber = '8'
     const thirdNumber = '22'
-    const result = runScript(studentCode, [firstNumber, secondNumber, thirdNumber])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [firstNumber, secondNumber, thirdNumber])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least three times', result.callCounts.prompt >= 3, 10)
     
     checkAndRecord('Three variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 3
     }, 10)
 
@@ -37,14 +36,14 @@ export function test(studentFilePath) {
 
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 3
     }, 10)
 
     checkAndRecord('Uses comparison operators', () => {
         // Look for less than operator used in comparisons
         const comparisonPattern = /<|<=/
-        return comparisonPattern.test(studentCode)
+        return comparisonPattern.test(strippedCode)
     }, 10)
 
     // Check for different valid approaches to find minimum
@@ -56,10 +55,10 @@ export function test(studentFilePath) {
         const mathMinPattern = /Math\.min/
         
         // Fail if Math.min is used
-        if (mathMinPattern.test(studentCode)) return false
+        if (mathMinPattern.test(strippedCode)) return false
         
         // Pass if code uses an if statement with comparison
-        return ifPattern.test(studentCode)
+        return ifPattern.test(strippedCode)
     }
     
     checkAndRecord('Uses valid comparison approach without Math.min', checkApproaches, 10)
@@ -78,7 +77,7 @@ export function test(studentFilePath) {
         const expectedMinimums = ['3', '-5', '7.2']
         
         for (let i = 0; i < testCases.length; i++) {
-            const testResult = runScript(studentCode, testCases[i])
+            const testResult = runScript(originalCode, testCases[i])
             
             // Check if any output contains the expected minimum number
             const containsExpectedMinimum = 
@@ -92,5 +91,5 @@ export function test(studentFilePath) {
         return correctResults.every(result => result === true)
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

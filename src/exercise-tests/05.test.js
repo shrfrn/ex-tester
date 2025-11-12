@@ -1,27 +1,26 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const firstDigit = '3'
     const secondDigit = '2'
     const thirdDigit = '6'
-    const result = runScript(studentCode, [firstDigit, secondDigit, thirdDigit])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [firstDigit, secondDigit, thirdDigit])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least three times', result.callCounts.prompt >= 3, 10)
     
     checkAndRecord('Three variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 3
     }, 10)
 
@@ -36,7 +35,7 @@ export function test(studentFilePath) {
     const stringJoinCheck = () => {
         // Look for string concatenation patterns - direct concatenation of variables
         const concatPattern = /\w+\s*\+\s*\w+\s*\+\s*\w+/
-        return concatPattern.test(studentCode)
+        return concatPattern.test(strippedCode)
     }
 
     const numericJoinCheck = () => {
@@ -44,7 +43,7 @@ export function test(studentFilePath) {
         const mult10Pattern = /\*\s*10/
         const mult100Pattern = /\*\s*100/
         
-        return mult10Pattern.test(studentCode) && mult100Pattern.test(studentCode)
+        return mult10Pattern.test(strippedCode) && mult100Pattern.test(strippedCode)
     }
 
     checkAndRecord('Uses string concatenation or numeric operations', 
@@ -56,7 +55,7 @@ export function test(studentFilePath) {
     // Bonus check - converting inputs to numbers
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 3
     }, 10)
 
@@ -70,7 +69,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const inputs of testCases) {
-            const testResult = runScript(studentCode, inputs)
+            const testResult = runScript(originalCode, inputs)
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -81,5 +80,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

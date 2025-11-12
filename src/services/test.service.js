@@ -17,7 +17,8 @@ export async function execute(exerciseId, filePath) {
         const { test } = await import(`file://${testFilePath}`)
         const result = test(filePath)
         
-        result.studentCode = fs.readFileSync(filePath, 'utf8')
+        // Don't overwrite studentCode - test already includes it
+        // result.studentCode = fs.readFileSync(filePath, 'utf8')
         
         const codeQuality = validateCodeQuality(filePath)
         result.codeQuality = codeQuality

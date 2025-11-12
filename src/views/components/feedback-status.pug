@@ -1,0 +1,39 @@
+mixin feedbackStatus(result)
+  .feedback-status
+    if result.success
+      .status-success
+        h2 Code executed successfully
+        
+        - const totalTests = (result.passed?.length || 0) + (result.failed?.length || 0)
+        - const passedTests = result.passed?.length || 0
+        - const scorePercent = result.percentage || 0
+        
+        .test-summary
+          p
+            strong Test Results: 
+            span.metric #{passedTests}/#{totalTests} tests passed
+        
+        .score-summary
+          p
+            strong Score: 
+            span.score-value #{scorePercent}%
+          
+    else
+      .status-error
+        h2 Code failed to execute
+        
+        .error-box
+          p.error-label Error Message:
+          if result.line
+            p.error-location
+              strong #{result.errorType} on line #{result.line}
+              if result.column
+                | , column #{result.column}
+          pre.error-message= result.error
+        
+        .execution-help
+          p When your code fails to run to completion, more detailed tests cannot be performed.
+          p Please fix the execution error first, then resubmit to get detailed test feedback.
+  
+  hr
+

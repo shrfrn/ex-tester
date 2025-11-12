@@ -1,10 +1,12 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
@@ -50,10 +52,8 @@ export function test(studentFilePath) {
 
     // Run the first test case and check basic execution
     const mainTestCase = testCases[0]
-    const result = runScript(studentCode, mainTestCase.input)
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, mainTestCase.input)
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check that prompt is used to get input
     checkAndRecord('Prompts for user input', () => {
@@ -62,28 +62,28 @@ export function test(studentFilePath) {
 
     // Check that string length is accessed
     checkAndRecord('Accesses string length property', () => {
-        return studentCode.includes('.length')
+        return strippedCode.includes('.length')
     }, 10)
 
     // Check for appropriate string methods
     checkAndRecord('Uses toUpperCase method', () => {
         const upperPattern = /\.toUpperCase\(\)/
-        return upperPattern.test(studentCode)
+        return upperPattern.test(strippedCode)
     }, 10)
     
     checkAndRecord('Uses toLowerCase method', () => {
         const lowerPattern = /\.toLowerCase\(\)/
-        return lowerPattern.test(studentCode)
+        return lowerPattern.test(strippedCode)
     }, 10)
     
     checkAndRecord('Uses charAt method to access characters', () => {
         const charAtPattern = /\.charAt\(\s*\d+\s*\)/
-        return charAtPattern.test(studentCode)
+        return charAtPattern.test(strippedCode)
     }, 10)
 
     // Run all test cases and check for correct outputs
     testCases.forEach(testCase => {
-        const testResult = runScript(studentCode, testCase.input)
+        const testResult = runScript(originalCode, testCase.input)
         const success = testResult.success
         
         // Combine all output for testing (or empty string if execution failed)
@@ -119,7 +119,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

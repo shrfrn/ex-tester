@@ -32,11 +32,19 @@ export function createTestCollector() {
 
 	function executionFailed(result, studentCode) {
 		return {
-			...getResults(),
+			submitted: true,
 			success: false,
 			error: result.error,
-			weight: 1,
+			errorType: result.errorType,
+			line: result.line,
+			column: result.column,
+			stack: result.stack,
 			studentCode,
+			passed: [],
+			failed: [],
+			score: 0,
+			maxScore: 0,
+			percentage: 0,
 		}
 	}
 

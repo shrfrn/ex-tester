@@ -4,11 +4,13 @@
 
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults } = createTestCollector()
 
@@ -54,7 +56,7 @@ export function test(studentFilePath) {
 
     // Run through each test case
     testCases.forEach(testCase => {
-        const result = runScript(studentCode, testCase.inputs)
+        const result = runScript(originalCode, testCase.inputs)
         
         checkAndRecord(`Execution for "${testCase.inputs[0]}" and "${testCase.inputs[1]}" succeeds`, 
             result.success, 10)
@@ -77,7 +79,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: true, 
         error: null, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

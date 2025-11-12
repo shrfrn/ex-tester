@@ -1,44 +1,43 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const distance = '100'
     const speed = '50'
-    const result = runScript(studentCode, [distance, speed])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [distance, speed])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     
     checkAndRecord('At least two variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 2
     }, 10)
 
     checkAndRecord('Division operation performed', () => {
-        return studentCode.includes('/') && 
+        return strippedCode.includes('/') && 
                result.allOutput.some(output => output.includes('2'))
     }, 10)
 
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 2
     }, 10)
 
     checkAndRecord('Time calculation formula used correctly', () => {
         // Look for distance / speed pattern in code
         const formulaPattern = /(\w+)\s*\/\s*(\w+)/g
-        const matches = [...studentCode.matchAll(formulaPattern)]
+        const matches = [...strippedCode.matchAll(formulaPattern)]
         
         // Check if the calculated time is correct
         return matches.length > 0 && 
@@ -59,7 +58,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [dist, spd] of testCases) {
-            const testResult = runScript(studentCode, [dist, spd])
+            const testResult = runScript(originalCode, [dist, spd])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -70,5 +69,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

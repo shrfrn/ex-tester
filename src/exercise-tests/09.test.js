@@ -1,33 +1,32 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // First test case - relatively close numbers
     const num1 = '5'
     const num2 = '9'
-    const result = runScript(studentCode, [num1, num2])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [num1, num2])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     
     checkAndRecord('At least two variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 2
     }, 10)
 
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 2
     }, 10)
 
@@ -35,7 +34,7 @@ export function test(studentFilePath) {
     checkAndRecord('Calculates absolute difference', () => {
         // Check for either Math.abs or if statement with comparison operator
         const absPattern = /Math\.abs|if\s*\(\s*\w+\s*[<>]=?\s*\w+/i
-        return absPattern.test(studentCode) && 
+        return absPattern.test(strippedCode) && 
                result.allOutput.some(output => output.includes('4')) &&
                !result.allOutput.some(output => output.includes('-4'))
     }, 20)
@@ -51,7 +50,7 @@ export function test(studentFilePath) {
     }, 10)
 
     // Test case for numbers that are not relatively close
-    const notCloseResult = runScript(studentCode, ['3', '15'])
+    const notCloseResult = runScript(originalCode, ['3', '15'])
     
     checkAndRecord('Does not display "relatively close" message for distant numbers', () => {
         return !notCloseResult.allOutput.some(output => 
@@ -62,7 +61,7 @@ export function test(studentFilePath) {
     checkAndRecord('Correctly compares difference with both input values', () => {
         // Look for comparison of difference with both inputs
         const comparisonPattern = /\w+\s*<\s*\w+\s*&&\s*\w+\s*<\s*\w+|\w+\s*<\s*Math\.min/
-        return comparisonPattern.test(studentCode)
+        return comparisonPattern.test(strippedCode)
     }, 10)
 
     const testCases = [
@@ -75,7 +74,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [a, b] of testCases) {
-            const testResult = runScript(studentCode, [a, b])
+            const testResult = runScript(originalCode, [a, b])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -86,5 +85,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

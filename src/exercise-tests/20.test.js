@@ -1,10 +1,12 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
@@ -34,10 +36,8 @@ export function test(studentFilePath) {
 
     // Run first test case and check basic execution
     const mainTestCase = testCases[0]
-    const result = runScript(studentCode, mainTestCase.inputs)
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, mainTestCase.inputs)
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Although the exercise asks for 10 numbers, 
     // the student code might ask for less (for brevity)
@@ -48,19 +48,19 @@ export function test(studentFilePath) {
     // Check that inputs are converted to numbers
     checkAndRecord('User inputs are converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 1
     }, 10)
 
     // Check for loop usage - only while loops are allowed
     checkAndRecord('Uses while loop to collect numbers', () => {
         const whileLoopPattern = /while\s*\(/
-        return whileLoopPattern.test(studentCode)
+        return whileLoopPattern.test(strippedCode)
     }, 10)
 
     // Grade each test case separately for max, min, and avg
     testCases.forEach(testCase => {
-        const testResult = runScript(studentCode, testCase.inputs)
+        const testResult = runScript(originalCode, testCase.inputs)
         const success = testResult.success
         
         // Calculate the expected values based on how many numbers were collected
@@ -120,7 +120,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

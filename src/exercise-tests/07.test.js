@@ -1,10 +1,12 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
@@ -12,36 +14,33 @@ export function test(studentFilePath) {
     const num1 = '6'
     const num2 = '4'
     const num3 = '10'
-    const result = runScript(studentCode, [num1, num2, num3])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [num1, num2, num3])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least three times', result.callCounts.prompt >= 3, 10)
     
     checkAndRecord('At least three variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 3
     }, 10)
 
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 2
     }, 10)
 
     checkAndRecord('Addition operation performed', () => {
         const additionPattern = /[\w\s]+\+[\w\s]+/
-        return additionPattern.test(studentCode) && 
+        return additionPattern.test(strippedCode) && 
                result.allOutput.some(output => output.includes('+'))
     }, 10)
 
     checkAndRecord('Comparison operation performed', () => {
         // Look for comparison operators
         const comparisonPattern = /===|!==/
-        return comparisonPattern.test(studentCode)
+        return comparisonPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Equal case output format correct', () => {
@@ -53,7 +52,7 @@ export function test(studentFilePath) {
     }, 10)
 
     // Test case for when sum is not equal
-    const notEqualResult = runScript(studentCode, ['3', '5', '10'])
+    const notEqualResult = runScript(originalCode, ['3', '5', '10'])
     
     checkAndRecord('Not equal case output format correct', () => {
         // Check for format like "3 + 5 != 10"
@@ -73,7 +72,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [a, b, c] of testCases) {
-            const testResult = runScript(studentCode, [a, b, c])
+            const testResult = runScript(originalCode, [a, b, c])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -87,8 +86,8 @@ export function test(studentFilePath) {
     // Check for conditional logic in the code
     checkAndRecord('Uses conditional logic', () => {
         const conditionalPattern = /if\s*\(.*\)|.*\?\s*.*\s*:\s*.*/
-        return conditionalPattern.test(studentCode)
+        return conditionalPattern.test(strippedCode)
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 }

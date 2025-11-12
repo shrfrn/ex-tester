@@ -1,25 +1,24 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
 
+    const strippedCode = stripComments(originalCode)
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const firstName = 'John'
     const lastName = 'Smith'
-    const result = runScript(studentCode, [firstName, lastName])
+    const result = runScript(originalCode, [firstName, lastName])
 
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     checkAndRecord('At least two variables store prompt results', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 2
     }, 10)
 
@@ -62,7 +61,7 @@ export function test(studentFilePath) {
     const allOutputs = new Set()
 
     testCases.forEach(([firstName, lastName]) => {
-        const result = runScript(studentCode, [firstName, lastName])
+        const result = runScript(originalCode, [firstName, lastName])
         allOutputs.add(JSON.stringify(result.allOutput))
     })
 
@@ -70,8 +69,8 @@ export function test(studentFilePath) {
 
     checkAndRecord('fullName concatenation syntax correct', () => {
         const regex = /fullName\s*=\s*firstName\s*\+\s*['"][ ]['"]\s*\+\s*lastName/
-        return regex.test(studentCode)
+        return regex.test(strippedCode)
     }, 10)
 
-    return { ...getResults(), success: result.success, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, studentCode: originalCode }
 }

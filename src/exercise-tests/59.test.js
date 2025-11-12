@@ -1,19 +1,19 @@
 import { runScript, runFunction } from '../services/code-runner.service.js'
 import { hasFunctionWithSignature } from '../services/type-checker.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode)
-    checkAndRecord('Code executes successfully', result.success, 10)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode)
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check that required functions exist with correct parameters
     const createBingoBoardExists = hasFunctionWithSignature('createBingoBoard', 0)
@@ -285,7 +285,7 @@ export function test(studentFilePath) {
         if (!playBingoExists || !createBingoBoardExists) return false
         
         // Run the script to set up the game
-        const scriptResult = runScript(studentCode)
+        const scriptResult = runScript(originalCode)
         if (!scriptResult.success) return false
         
         // Check if gPlayers exists and has at least 2 players
@@ -371,7 +371,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

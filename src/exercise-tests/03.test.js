@@ -1,25 +1,24 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const celsiusTemp = '25'
-    const result = runScript(studentCode, [celsiusTemp])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [celsiusTemp])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least once', result.callCounts.prompt >= 1, 10)
     
     checkAndRecord('Prompt result stored in a variable', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 1
     }, 10)
 
@@ -28,12 +27,12 @@ export function test(studentFilePath) {
         const multiplyPattern = /\*\s*(9\/5|1\.8)/
         const addPattern = /\+\s*32/
         
-        return multiplyPattern.test(studentCode) && addPattern.test(studentCode)
+        return multiplyPattern.test(strippedCode) && addPattern.test(strippedCode)
     }, 20)
 
     checkAndRecord('User input converted to a number', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        return conversionPattern.test(studentCode)
+        return conversionPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Output method used', 
@@ -55,7 +54,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [celsius] of testCases) {
-            const testResult = runScript(studentCode, [celsius])
+            const testResult = runScript(originalCode, [celsius])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -66,5 +65,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

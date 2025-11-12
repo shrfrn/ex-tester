@@ -1,19 +1,19 @@
 import { runScript, runFunction } from '../services/code-runner.service.js'
 import { hasFunctionWithSignature } from '../services/type-checker.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Test that the script runs without errors
-    const result = runScript(studentCode, ["TestUser", "quit", "80", "85", "90"])
-    checkAndRecord('Code executes successfully', result.success, 10)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, ["TestUser", "quit", "80", "85", "90"])
+    if (!result.success) return executionFailed(result, originalCode)
 
     // Check that required functions exist with correct parameters
     const createStudentsExists = hasFunctionWithSignature('createStudents', 0)
@@ -47,7 +47,7 @@ export function test(studentFilePath) {
     checkAndRecord('createStudents prompts for student names and grades correctly', () => {
         if (!createStudentsExists) return false
 
-        const testResult = runScript(studentCode, createStudentsInputs)
+        const testResult = runScript(originalCode, createStudentsInputs)
         return testResult.callCounts && testResult.callCounts?.prompt >= createStudentsInputs.length
     }, 10)
 
@@ -159,7 +159,7 @@ export function test(studentFilePath) {
         ...getResults(), 
         success: result.success, 
         error: result.error, 
-        weight: 1, 
-        studentCode 
+        
+        studentCode: originalCode
     }
 } 

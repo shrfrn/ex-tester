@@ -1,53 +1,52 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     // Check variable initialization
     checkAndRecord('Initializes currBalance with 1000', () => {
-        return /currBalance\s*=\s*1000/.test(studentCode)
+        return /currBalance\s*=\s*1000/.test(strippedCode)
     }, 10)
 
     checkAndRecord('Initializes PIN as a constant with value 0796', () => {
-        return /(let|const|var)\s+PIN\s*=\s*['"]0796['"]/i.test(studentCode)
+        return /(let|const|var)\s+PIN\s*=\s*['"]0796['"]/i.test(strippedCode)
     }, 10)
 
     // Correct PIN test case
     const correctPIN = '0796'
     const withdrawAmount = '300'
-    const result = runScript(studentCode, [correctPIN, withdrawAmount])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [correctPIN, withdrawAmount])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least twice', result.callCounts.prompt >= 2, 10)
     
     checkAndRecord('Uses prompt for PIN and withdrawal amount', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 2
     }, 10)
 
     checkAndRecord('User input converted to numbers', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 1
     }, 10)
 
     checkAndRecord('Uses conditional logic', () => {
         const conditionalPattern = /if\s*\(/
-        return conditionalPattern.test(studentCode)
+        return conditionalPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Compares entered PIN with stored PIN', () => {
         const pinComparisonPattern = /if\s*\(\s*\w+\s*===?\s*PIN|if\s*\(\s*PIN\s*===?\s*\w+/
-        return pinComparisonPattern.test(studentCode)
+        return pinComparisonPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Updates balance after withdrawal', () => {
@@ -62,7 +61,7 @@ export function test(studentFilePath) {
 
     // Incorrect PIN test case
     const incorrectPIN = '1234'
-    const incorrectPINResult = runScript(studentCode, [incorrectPIN, withdrawAmount])
+    const incorrectPINResult = runScript(originalCode, [incorrectPIN, withdrawAmount])
     
     checkAndRecord('Access denied with incorrect PIN', () => {
         // Check that only one prompt is called with incorrect PIN
@@ -72,7 +71,7 @@ export function test(studentFilePath) {
 
     // Excessive withdrawal test case
     const excessiveAmount = '1500'
-    const excessiveResult = runScript(studentCode, [correctPIN, excessiveAmount])
+    const excessiveResult = runScript(originalCode, [correctPIN, excessiveAmount])
     
     checkAndRecord('Prevents excessive withdrawals', () => {
         // Check that balance remains unchanged (still 1000) after excessive withdrawal attempt
@@ -91,7 +90,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [pin, amount] of testCases) {
-            const testResult = runScript(studentCode, [pin, amount])
+            const testResult = runScript(originalCode, [pin, amount])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -102,5 +101,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

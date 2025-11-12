@@ -74,10 +74,17 @@ export async function getStudentExercises(studentFolder, exerciseNumbers) {
 	}
 }
 
-export function stripComments(filePath) {
+export function readCode(filePath) {
 	try {
-		const code = fs.readFileSync(filePath, 'utf8')
+		return fs.readFileSync(filePath, 'utf8')
+	} catch (error) {
+		console.error(`Error reading file ${filePath}:`, error)
+		return ''
+	}
+}
 
+export function stripComments(code) {
+	try {
 		// Remove single-line and multi-line comments
 		// This regex handles:
 		// 1. Single-line comments: // comment
@@ -94,7 +101,7 @@ export function stripComments(filePath) {
 
 		return strippedCode
 	} catch (error) {
-		console.error(`Error reading or processing file ${filePath}:`, error)
-		return ''
+		console.error(`Error stripping comments:`, error)
+		return code
 	}
 } 

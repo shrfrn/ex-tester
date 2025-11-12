@@ -32,7 +32,7 @@ export async function handleSubmission(req, res) {
         }
 
         const reportOptions = { saveToFile: false, isSingleExercise: true }
-        const prmHtmlReport = generateReport([studentResult], 'htmlDetailedPug', reportOptions)
+        const prmHtmlReport = generateReport([studentResult], 'studentFeedbackPug', reportOptions)
 
         const activities = [studentResult]
         if (req.body.runnerLog) {

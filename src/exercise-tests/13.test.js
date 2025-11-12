@@ -1,21 +1,20 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
 
     // Test valid floor input
     const normalFloor = '3'
-    const result = runScript(studentCode, [normalFloor])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [normalFloor])
+    if (!result.success) return executionFailed(result, originalCode)
     
     checkAndRecord('currFloor variable defined and accessed multiple times', () => {
         // Check that currFloor is declared and accessed
@@ -25,26 +24,26 @@ export function test(studentFilePath) {
     
     // Check variable initialization
     checkAndRecord('Initializes currFloor to 0', () => {
-        return /currFloor\s*=\s*0/.test(studentCode)
+        return /currFloor\s*=\s*0/.test(strippedCode)
     }, 10)
 
     checkAndRecord('Prompt called for floor selection', result.callCounts.prompt >= 1, 10)
     
     checkAndRecord('Stores prompt result in a variable', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 1
     }, 10)
 
     checkAndRecord('User input converted to number', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        const matches = studentCode.match(conversionPattern) || []
+        const matches = strippedCode.match(conversionPattern) || []
         return matches.length >= 1
     }, 10)
 
     checkAndRecord('Uses conditional logic', () => {
         const conditionalPattern = /if\s*\(/
-        return conditionalPattern.test(studentCode)
+        return conditionalPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Updates current floor correctly', () => {
@@ -54,7 +53,7 @@ export function test(studentFilePath) {
 
     // Test ground floor (exit floor)
     const exitFloor = '0'
-    const exitResult = runScript(studentCode, [exitFloor])
+    const exitResult = runScript(originalCode, [exitFloor])
     
     checkAndRecord('Shows "Bye bye" message on floor 0', () => {
         return exitResult.context.currFloor === 0 &&
@@ -64,7 +63,7 @@ export function test(studentFilePath) {
 
     // Test negative floor (parking)
     const parkingFloor = '-1'
-    const parkingResult = runScript(studentCode, [parkingFloor])
+    const parkingResult = runScript(originalCode, [parkingFloor])
     
     checkAndRecord('Shows "Drive safely" message on negative floors', () => {
         return parkingResult.context.currFloor === -1 &&
@@ -74,7 +73,7 @@ export function test(studentFilePath) {
 
     // Test invalid floor (out of range)
     const invalidFloor = '6'
-    const invalidResult = runScript(studentCode, [invalidFloor])
+    const invalidResult = runScript(originalCode, [invalidFloor])
     
     checkAndRecord('Rejects invalid floors outside range', () => {
         // Check that currFloor remains unchanged (still 0) after invalid floor input
@@ -97,7 +96,7 @@ export function test(studentFilePath) {
     // Test range validation
     checkAndRecord('Checks floor range correctly', () => {
         const rangePattern = /if\s*\([^)]*(-2|<=-2|>=-2)[^)]*(\s*&&\s*|\s*\|\|\s*)[^)]*[<>]=?\s*4/
-        return rangePattern.test(studentCode)
+        return rangePattern.test(strippedCode)
     }, 10)
 
     // Test different floors
@@ -112,7 +111,7 @@ export function test(studentFilePath) {
         const outputSet = new Set()
         
         for (const [floor] of testCases) {
-            const testResult = runScript(studentCode, [floor])
+            const testResult = runScript(originalCode, [floor])
             
             // Add stringified output to detect uniqueness
             const outputString = JSON.stringify(testResult.allOutput)
@@ -123,5 +122,5 @@ export function test(studentFilePath) {
         return outputSet.size === testCases.length
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 

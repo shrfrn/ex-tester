@@ -1,25 +1,24 @@
 import { runScript } from '../services/code-runner.service.js'
 import { createTestCollector } from '../services/test-collector.service.js'
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 
 export function test(studentFilePath) {
-    let studentCode = stripComments(studentFilePath)
-    if (!studentCode) return { submitted: false }
+    const originalCode = readCode(studentFilePath)
+    if (!originalCode) return { submitted: false }
+
+    const strippedCode = stripComments(originalCode)
 
     let { checkAndRecord, getResults, executionFailed } = createTestCollector()
 
     const friendCount = '350'
-    const result = runScript(studentCode, [friendCount])
-
-    checkAndRecord('Code executes successfully', result.success, 20)
-
-    if (!result.success) return executionFailed(result, studentCode)
+    const result = runScript(originalCode, [friendCount])
+    if (!result.success) return executionFailed(result, originalCode)
 
     checkAndRecord('Prompt called at least once', result.callCounts.prompt >= 1, 10)
     
     checkAndRecord('Stores prompt result in a variable', () => {
         const promptPattern = /(let|const|var)[\s\S]*?=[\s\S]*?prompt/g
-        const matches = studentCode.match(promptPattern) || []
+        const matches = strippedCode.match(promptPattern) || []
         return matches.length >= 1
     }, 10)
 
@@ -28,7 +27,7 @@ export function test(studentFilePath) {
 
     checkAndRecord('User input converted to a number', () => {
         const conversionPattern = /parseInt|\+[\s]*prompt|Number|parseFloat/g
-        return conversionPattern.test(studentCode)
+        return conversionPattern.test(strippedCode)
     }, 10)
 
     checkAndRecord('Uses if/else conditional structure', () => {
@@ -36,18 +35,18 @@ export function test(studentFilePath) {
         const ifPattern = /if\s*\(/
         const elsePattern = /else/
         
-        return ifPattern.test(studentCode) && elsePattern.test(studentCode)
+        return ifPattern.test(strippedCode) && elsePattern.test(strippedCode)
     }, 10)
     
     checkAndRecord('Has proper if-else if structure for all conditions', () => {
         // More specific check - if, 3+ else if's, and else
         // Count the number of else if occurrences
-        const elseIfMatches = studentCode.match(/else\s+if\s*\(/g) || []
+        const elseIfMatches = strippedCode.match(/else\s+if\s*\(/g) || []
         const hasEnoughElseIfs = elseIfMatches.length >= 3
         
         // Check for if and else (final case)
-        const hasIf = /if\s*\(/.test(studentCode)
-        const hasElse = /else\s*{/.test(studentCode)
+        const hasIf = /if\s*\(/.test(strippedCode)
+        const hasElse = /else\s*{/.test(strippedCode)
         
         // Pass if structure is correct and no switch
         return hasIf && hasEnoughElseIfs && hasElse
@@ -74,7 +73,7 @@ export function test(studentFilePath) {
         const responseResults = []
         
         for (let i = 0; i < testCases.length; i++) {
-            const testResult = runScript(studentCode, testCases[i])
+            const testResult = runScript(originalCode, testCases[i])
             // Check if the output matches the expected pattern for this response
             responseResults.push(
                 testResult.allOutput.some(output => expectedResponses[i].test(output))
@@ -107,7 +106,7 @@ export function test(studentFilePath) {
         const boundaryResults = []
         
         for (let i = 0; i < boundaryValues.length; i++) {
-            const testResult = runScript(studentCode, boundaryValues[i])
+            const testResult = runScript(originalCode, boundaryValues[i])
             // Check if the output matches the expected pattern for this boundary case
             boundaryResults.push(
                 testResult.allOutput.some(output => boundaryResponses[i].test(output))
@@ -117,5 +116,5 @@ export function test(studentFilePath) {
         return boundaryResults.every(result => result === true)
     }, 10)
 
-    return { ...getResults(), success: result.success, error: result.error, weight: 1, studentCode }
+    return { ...getResults(), success: result.success, error: result.error, studentCode: originalCode }
 } 
