@@ -1,10 +1,10 @@
 import fs from 'fs'
 
-import { executeTest } from './test.service.js'
-import { userService } from '../user/user.service.js'
+import * as testService from '../../services/test.service.js'
+import { generateReport } from '../../services/report.service.js'
+import { userService, ACTIVITY_TYPE } from '../user/user.service.js'
 
-export async function runTest(req, res) {
-    const filePath = req.file.path
+export async function handleSubmission(req, res) {
     const validation = validateTestRequest(req)
 
     if (!validation.valid) {
@@ -12,23 +12,40 @@ export async function runTest(req, res) {
         return
     }
 
-    const testOptions = {
-        exerciseId: req.body.exerciseId,
-        studentName: req.loggedinUser.fullname,
-        filePath,
-    }
+    const filePath = req.file.path
 
     try {
-        const htmlReport = await executeTest(testOptions)
-        
+        const result = await testService.execute(req.body.exerciseId, filePath)
+
+        const studentResult = {
+            name: req.loggedinUser.fullname,
+            folderPath: '',
+            testResults: { [req.body.exerciseId]: result },
+            scores: {
+                submissionRate: 1,
+                normalizedScore: result.normalizedScore || 0,
+                submittedCount: 1,
+                totalExercises: 1,
+                successfulCount: result.success ? 1 : 0,
+                successRate: result.success ? 1 : 0,
+            },
+        }
+
+        const reportOptions = { saveToFile: false, isSingleExercise: true }
+        const prmHtmlReport = generateReport([studentResult], 'htmlDetailedPug', reportOptions)
+
+        const activities = [studentResult]
         if (req.body.runnerLog) {
             const runnerLog = JSON.parse(req.body.runnerLog)
-            await userService.addActivities(req.loggedinUser._id, runnerLog)
+            activities.push(...runnerLog)
         }
+        const prmAddActivities = userService.addActivities(req.loggedinUser._id, activities, ACTIVITY_TYPE.TEST)
+
+        const [htmlReport] = await Promise.all([prmHtmlReport, prmAddActivities])
 
         res.setHeader('Content-Type', 'text/html')
         res.send(htmlReport)
-        return
+        
     } catch (error) {
         console.error('Error processing test:', error)
         res.status(500).json({

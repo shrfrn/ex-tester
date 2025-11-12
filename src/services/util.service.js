@@ -11,16 +11,13 @@ export function compactNumberList(nums) {
 	for (let i = 1; i < nums.length; i++) {
 		if (nums[i] === rangeEnd + 1) {
 			rangeEnd = nums[i]
-
 		} else {
 			// End of a range
 			if (rangeStart === rangeEnd) {
 				ranges.push(`${rangeStart}`)
-
 			} else {
 				ranges.push(`${rangeStart}-${rangeEnd}`)
 			}
-
 			rangeStart = rangeEnd = nums[i]
 		}
 	}
@@ -48,7 +45,6 @@ export function parseNumRange(input) {
 			for (let i = Number(rangeStart); i <= Number(rangeEnd); i++) {
 				numbers.push(i)
 			}
-
 		} else {
 			// Handle single number
 			numbers.push(Number(singleNum))
@@ -61,9 +57,7 @@ export function parseNumRange(input) {
 export function readJsonFile(filePath) {
 	try {
 		const rawData = fs.readFileSync(filePath, 'utf8')
-
 		return JSON.parse(rawData)
-
 	} catch (error) {
 		console.error(`Error reading config file: ${error.message}`)
 		return {}

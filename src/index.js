@@ -1,18 +1,10 @@
-import path from 'path'
-import fs from 'fs'
 import commandLineArgs from 'command-line-args'
 
-import { findStudentFolders, getStudentExercises } from './services/file-utils.service.js'
-import { runExerciseTests } from './test-runner.js'
-import { calculateStudentScores } from './services/score.service.js'
-import { generateReport } from './services/report.service.js'
+import { runBatch } from './batch-runner.js'
 import { parseNumRange, readJsonFile } from './services/util.service.js'
 import { promptInput } from './cli-prompts.js'
 
-// Define command line options
 const optionDefinitions = [
-	// Config file can contain: submissionsPath, exerciseRangeInput, reportType, and startDir
-	// The startDir option is only used if submissionsPath is not provided
 	{ name: 'config', alias: 'c', type: String, description: 'Path to a JSON config file containing predefined options' }
 ]
 
@@ -20,58 +12,19 @@ async function main() {
 	console.log('Student Assignment Testing Suite')
 	console.log('================================\n')
 
-	// Parse command line arguments
 	const options = commandLineArgs(optionDefinitions)
 	
-	// Initialize config object
 	let config = {}
 	
-	// If config file is provided, read it
 	if (options.config) {
 		console.log(`Reading config from: ${options.config}`)
 		config = readJsonFile(options.config)
 	}
 	
-	// Get inputs from user for any missing config values
 	const { submissionsPath, exerciseRangeInput, reportType } = await promptInput(config)
 	const exerciseNumbers = parseNumRange(exerciseRangeInput)
 
-	batchTest({ submissionsPath, exerciseNumbers, reportType })
-}
-
-async function batchTest({ submissionsPath, exerciseNumbers, reportType = 'htmlDetailed' }) {
-	try {
-		const studentResults = []
-		const studentFolders = await findStudentFolders(submissionsPath)
-
-		for (const student of studentFolders) {
-			console.log(`\n==> Testing Student: ${student.name} <==\n`)
-
-			const exerciseFiles = await getStudentExercises(student.path, exerciseNumbers)
-			const testResults = await runExerciseTests({ studentFolder: student.path, exerciseFiles })
-
-			studentResults.push({
-				name: student.name,
-				folderPath: student.path,
-				testResults,
-			})
-		}
-		// TODO: result calc needs to be fixed
-		calculateStudentScores(studentResults, exerciseNumbers.length)
-
-		// Create reports directory if it doesn't exist
-		const reportsDir = path.join(process.cwd(), 'reports')
-		if (!fs.existsSync(reportsDir)) {
-			fs.mkdirSync(reportsDir, { recursive: true })
-		}
-
-		const resultsPath = path.join(process.cwd(), 'reports', 'student-results.json')
-		fs.writeFileSync(resultsPath, JSON.stringify(studentResults, null, 4))
-
-		generateReport(studentResults, reportType)
-	} catch (error) {
-		console.error('Error during evaluation:', error)
-	}
+	await runBatch({ submissionsPath, exerciseNumbers, reportType })
 }
 
 // Run the main function

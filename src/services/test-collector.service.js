@@ -16,7 +16,6 @@ export function createTestCollector() {
 		if (condition) {
 			results.score += score
 			results.passed.push({ description, score })
-
 		} else {
 			results.failed.push({ description, score })
 		}

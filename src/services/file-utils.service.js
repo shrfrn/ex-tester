@@ -48,7 +48,6 @@ export async function findStudentFolders(globPattern) {
 				path: exercisePath,
 			}
 		})
-
 	} catch (error) {
 		console.error(`Error searching for student folders: ${error.message}`)
 		throw error
