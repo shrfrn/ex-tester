@@ -1,13 +1,11 @@
-// Validation Strategy: Sequential 3-phase approach
-// 1. Detect indentation norm from first indented line (tabs vs spaces, size)
-// 2. Calculate expected indent level for each line based on bracket nesting
-// 3. Validate every line matches the norm at the correct depth
-// Result: First violation = fail, all consistent = perfect
+// Validation Strategy: All-or-nothing approach
+// First indentation violation fails the entire metric immediately
+// Result: Either perfect (0 points deducted) or flawed (-5 points)
 
 export function validateIndentation(codeString) {
 	const lines = codeString.split('\n')
 
-	// Phase 1: Establish the indentation norm from first indented line
+	// Detect indentation style from first indented line
 	const styleInfo = _detectIndentStyle(lines)
 	
 	if (!styleInfo) {
@@ -16,17 +14,29 @@ export function validateIndentation(codeString) {
 
 	const { indentStyle, indentSize } = styleInfo
 	
-	// Phase 2: Calculate what indent level each line should be at
+	// Calculate expected indent levels based on nesting
 	const expectedLevels = _calculateExpectedIndentLevels(lines)
 	
-	// Phase 3: Validate every line matches norm at correct depth
-	const violations = _validateIndentConsistency(lines, indentStyle, indentSize, expectedLevels)
+	// Check each line - fail immediately on first violation
+	const firstViolation = _findFirstIndentViolation(lines, indentStyle, indentSize, expectedLevels)
+	
+	if (firstViolation) {
+		return {
+			score: -5,
+			indentStyle,
+			indentSize,
+			violations: [{
+				line: firstViolation.line,
+				message: firstViolation.message
+			}]
+		}
+	}
 	
 	return {
-		score: violations.length === 0 ? 0 : -5,
+		score: 0,
 		indentStyle,
 		indentSize,
-		violations
+		violations: []
 	}
 }
 
@@ -104,13 +114,11 @@ function _calculateExpectedIndentLevels(lines) {
 	return expectedLevels
 }
 
-// Phase 3: Validate every line matches the established norm at correct depth
-// Returns: Array of violations (empty = perfect indentation)
-// Strategy: Check each line for style consistency and correct depth
+// Phase 3: Find the first indentation violation
+// Returns: First violation object or null if perfect
+// Strategy: Check each line until first violation found, then stop
 
-function _validateIndentConsistency(lines, indentStyle, indentSize, expectedLevels) {
-	const violations = []
-	
+function _findFirstIndentViolation(lines, indentStyle, indentSize, expectedLevels) {
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i].trimRight()
 		
@@ -122,27 +130,25 @@ function _validateIndentConsistency(lines, indentStyle, indentSize, expectedLeve
 		
 		// Check 1: Mixed tabs and spaces on same line (always wrong)
 		if (currentIndent.includes('\t') && currentIndent.includes(' ')) {
-			violations.push({
+			return {
 				line: i + 1,
-				content: line,
-				message: 'Line mixes tabs and spaces for indentation'
-			})
-			continue
+				message: 'Indentation error: Line mixes tabs and spaces'
+			}
 		}
 		
 		// Check 2: Style consistency (tabs vs spaces throughout file)
 		if (indentStyle === 'tab' && currentIndent.includes(' ')) {
-			violations.push({
+			return {
 				line: i + 1,
-				content: line,
-				message: 'Line uses spaces but file uses tabs for indentation'
-			})
-		} else if (indentStyle === 'space' && currentIndent.includes('\t')) {
-			violations.push({
+				message: 'Indentation error: Line uses spaces but file uses tabs'
+			}
+		}
+		
+		if (indentStyle === 'space' && currentIndent.includes('\t')) {
+			return {
 				line: i + 1,
-				content: line,
-				message: 'Line uses tabs but file uses spaces for indentation'
-			})
+				message: 'Indentation error: Line uses tabs but file uses spaces'
+			}
 		}
 		
 		// Check 3: Correct indent depth (right number of tabs/spaces for nesting level)
@@ -152,14 +158,13 @@ function _validateIndentConsistency(lines, indentStyle, indentSize, expectedLeve
 				: ' '.repeat(expectedLevel * indentSize)
 			
 			if (currentIndent !== expectedIndentString) {
-				violations.push({
+				return {
 					line: i + 1,
-					content: line,
-					message: `Incorrect indentation level. Expected ${expectedLevel} levels (${expectedIndentString.length} ${indentStyle}s)`
-				})
+					message: `Indentation error: Expected ${expectedLevel} level${expectedLevel !== 1 ? 's' : ''} (${expectedIndentString.length} ${indentStyle}${expectedIndentString.length !== 1 ? 's' : ''}), found ${currentIndent.length}`
+				}
 			}
 		}
 	}
 	
-	return violations
+	return null
 }

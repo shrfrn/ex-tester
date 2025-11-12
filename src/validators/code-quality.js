@@ -1,4 +1,4 @@
-import { stripComments } from '../services/file-utils.service.js'
+import { readCode, stripComments } from '../services/file-utils.service.js'
 import { validateVarNames } from './var-names.validator.js'
 import { validateIndentation } from './indentation.validator.js'
 import { validateLineSpacing } from './line-spacing.validator.js'
@@ -6,7 +6,8 @@ import { validateQuotes } from './quotes.validator.js'
 import { validateNoSemicolons } from './semicolons.validator.js'
 
 export function validateCodeQuality(exerciseFile) {
-    const codeString = stripComments(exerciseFile)
+    const originalCode = readCode(exerciseFile)
+    const codeString = stripComments(originalCode)
     const results = [
         validateVarNames(codeString),
         validateIndentation(codeString),
