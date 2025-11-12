@@ -10,8 +10,24 @@ html(lang='en')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js')
     script.
       document.addEventListener('DOMContentLoaded', () => {
+        // Apply syntax highlighting
         document.querySelectorAll('pre code').forEach(block => {
           hljs.highlightElement(block)
+        })
+        
+        // After syntax highlighting, highlight error lines
+        document.querySelectorAll('pre[data-error-line]').forEach(pre => {
+          const errorLine = parseInt(pre.dataset.errorLine)
+          if (!errorLine) return
+          
+          const code = pre.querySelector('code')
+          const lines = code.innerHTML.split('\n')
+          
+          // Wrap the error line in a mark tag
+          if (errorLine > 0 && errorLine <= lines.length) {
+            lines[errorLine - 1] = '<mark class="error-line">' + lines[errorLine - 1] + '</mark>'
+            code.innerHTML = lines.join('\n')
+          }
         })
       })
   body

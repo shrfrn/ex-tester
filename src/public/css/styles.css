@@ -100,6 +100,15 @@ code {
   border-radius: 4px;
 }
 
+/* Highlight the error line in code blocks */
+.code-container mark.error-line {
+  background-color: #ffe6e6;
+  display: block;
+  margin: 0 -10px;
+  padding: 0 10px;
+  border-left: 3px solid #d32f2f;
+}
+
 nav {
   margin-bottom: 30px;
   padding: 15px;

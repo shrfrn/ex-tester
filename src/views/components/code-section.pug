@@ -1,7 +1,7 @@
-mixin codeSection(code)
+mixin codeSection(code, errorLine)
   details
     summary
       strong Code
     div.code-container
-      pre
+      pre(data-error-line=errorLine)
         code.language-javascript= code.trim() 
