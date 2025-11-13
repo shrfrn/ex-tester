@@ -1,0 +1,29 @@
+extends ../layouts/main
+
+include ../components/feedback-header
+include ../components/feedback-status
+include ../components/feedback-tests
+include ../components/code-section
+
+block content
+  - const exerciseId = Object.keys(student.testResults)[0]
+  - const result = student.testResults[exerciseId]
+  
+  +feedbackHeader(student.name, exerciseId)
+  
+  +feedbackStatus(result)
+  
+  if result.success
+    +feedbackTests(result.passed, result.failed)
+    
+    - 
+      const hasViolations = result.codeQuality && 
+        result.codeQuality.results &&
+        result.codeQuality.results.some(r => r.violations && r.violations.length > 0)
+    
+    if hasViolations
+      +feedbackCodeQuality(result.codeQuality)
+  
+  if result.studentCode
+    +codeSection(result.studentCode, result.line)
+

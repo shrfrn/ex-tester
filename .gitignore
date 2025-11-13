@@ -24,4 +24,5 @@ CaFeb25-ExerciseSubmission
 src/ex-tester.code-workspace
 ex-tester.code-workspace
 uploads
-reports
+/reports
+logs/backend.log
