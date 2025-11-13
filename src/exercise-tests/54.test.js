@@ -213,11 +213,5 @@ export function test(studentFilePath) {
                flight.passengers.length <= plane.seatCount // Should not exceed capacity
     }, 15)
 
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

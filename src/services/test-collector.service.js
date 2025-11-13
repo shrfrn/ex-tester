@@ -1,14 +1,13 @@
 export function createTestCollector() {
 	const results = {
+		submitted: true,
 		passed: [],
 		failed: [],
 		score: 0,
-		count: 0,
 		maxScore: 0,
 	}
 
 	function checkAndRecord(description, condition, score = 10) {
-		results.count++
 		results.maxScore += score
 
 		if (typeof condition === 'function') condition = condition()
@@ -23,11 +22,8 @@ export function createTestCollector() {
 		return condition
 	}
 
-	function getResults() {
-		return {
-			...results,
-			percentage: Math.round((results.score / results.maxScore) * 100),
-		}
+	function getResults(success, studentCode) {
+		return { ...results, success, studentCode }
 	}
 
 	function executionFailed(result, studentCode) {
@@ -40,11 +36,7 @@ export function createTestCollector() {
 			column: result.column,
 			stack: result.stack,
 			studentCode,
-			passed: [],
-			failed: [],
-			score: 0,
-			maxScore: 0,
-			percentage: 0,
+			normalizedScore: 0,
 		}
 	}
 

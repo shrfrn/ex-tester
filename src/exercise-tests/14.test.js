@@ -72,11 +72,5 @@ export function test(studentFilePath) {
         return functionExists && (result.callCounts.consoleLog > 0 || result.callCounts.alert > 0)
     }, 10)
 
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

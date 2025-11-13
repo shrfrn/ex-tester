@@ -156,11 +156,5 @@ export function test(studentFilePath) {
         return outputContainsMode(findModeResult.consoleOutput, -1)
     }, 10)
     
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

@@ -72,5 +72,5 @@ export function test(studentFilePath) {
         return regex.test(strippedCode)
     }, 10)
 
-    return { ...getResults(), success: result.success, studentCode: originalCode }
+    return getResults(result.success, originalCode)
 }

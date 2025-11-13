@@ -25,11 +25,11 @@ export async function execute(exerciseId, filePath) {
         
         if (typeof result.score === 'number' && typeof result.maxScore === 'number') {
             result.score = Math.min(result.score, result.maxScore)
-            result.percentage = Math.round((result.score / result.maxScore) * 100)
             
+            const baseScore = Math.round((result.score / result.maxScore) * 100)
             const qualityFactor = (100 + codeQuality.score) / 100
             result.normalizedScore = Math.max(0, Math.min(100, 
-                Math.round(result.percentage * qualityFactor)
+                Math.round(baseScore * qualityFactor)
             ))
         }
         
@@ -42,9 +42,6 @@ export async function execute(exerciseId, filePath) {
             submitted: true,
             success: false,
             error: error.message,
-            score: 0,
-            maxScore: 100,
-            percentage: 0,
             normalizedScore: 0,
             codeQuality: { score: 0, results: [] }
         }

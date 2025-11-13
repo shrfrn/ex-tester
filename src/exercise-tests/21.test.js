@@ -58,11 +58,5 @@ export function test(studentFilePath) {
         }
     })
 
-    return { 
-        ...getResults(), 
-        success: true, 
-        error: null, 
-        
-        studentCode: originalCode
-    }
+    return getResults(true, originalCode)
 } 

@@ -128,7 +128,6 @@ function _buildCriteria(filterBy) {
 }
 
 async function addActivities(userId, activities, type = ACTIVITY_TYPE.RUN) {
-    console.log('activities', activities)
     activities = activities.map(activity => ({ ... activity, type }))
 
     try {

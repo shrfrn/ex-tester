@@ -3,7 +3,7 @@ include ./failed-tests
 
 mixin exerciseDetails(exerciseId, result)
   - const exerciseTitle = result.title || `Exercise ${exerciseId}`
-  - const scorePercentage = result.normalizedScore ? `${result.normalizedScore}%` : (result.percentage ? `${result.percentage}%` : 'N/A')
+  - const scorePercentage = result.normalizedScore !== undefined ? `${result.normalizedScore}%` : 'N/A'
   - const codeQualityScore = `${100 + result.codeQuality.score}%`
   
   details

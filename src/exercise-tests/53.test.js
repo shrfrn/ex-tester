@@ -155,11 +155,5 @@ export function test(studentFilePath) {
                expectedNames.every(name => collectedNames.includes(name))
     }, 20)
     
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

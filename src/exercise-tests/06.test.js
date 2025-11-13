@@ -98,11 +98,5 @@ export function test(studentFilePath) {
                   line.match(/no\s+real\s+solutions|imaginary|complex/i))
     }, 7.5)
 
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

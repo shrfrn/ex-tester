@@ -6,7 +6,7 @@ mixin feedbackStatus(result)
         
         - const totalTests = (result.passed?.length || 0) + (result.failed?.length || 0)
         - const passedTests = result.passed?.length || 0
-        - const scorePercent = result.normalizedScore !== undefined ? result.normalizedScore : (result.percentage || 0)
+        - const scorePercent = result.normalizedScore || 0
         
         .test-summary
           p

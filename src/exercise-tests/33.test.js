@@ -75,11 +75,5 @@ export function test(studentFilePath) {
             success && hasCorrectDoubling, 10)
     })
     
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 }

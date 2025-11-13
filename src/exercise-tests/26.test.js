@@ -100,13 +100,7 @@ export function test(studentFilePath) {
         })
     }, 20)
 
-    return { 
-        ...getResults(), 
-        success: successCount > 0, 
-        error: successCount === 0 ? "Failed to execute successfully" : null, 
-        
-        studentCode: originalCode
-    }
+    return getResults(successCount > 0, originalCode)
 }
 
 // Helper function to extract numbers from output strings

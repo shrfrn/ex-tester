@@ -211,11 +211,5 @@ export function test(studentFilePath) {
         checkAndRecord('getBlockOutline(3, 3) returns correct block outline pattern', () => false, 10)
     }
 
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 

@@ -187,9 +187,8 @@ export function studentSummaryTable(student) {
 // Component for exercise details
 export function exerciseDetails(exerciseId, result) {
   const exerciseTitle = result.title || `Exercise ${exerciseId}`
-  const scorePercentage = result.normalizedScore ? 
-      `${result.normalizedScore}%` : 
-      (result.percentage ? `${result.percentage}%` : 'N/A')
+  const scorePercentage = result.normalizedScore !== undefined ? 
+      `${result.normalizedScore}%` : 'N/A'
   
   const codeQualityScore = `${100 + result.codeQuality.score}%`
   const successCheckbox = result.success ? '<input type="checkbox" checked disabled>' : '<input type="checkbox" disabled>'

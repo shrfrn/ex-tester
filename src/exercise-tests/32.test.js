@@ -66,10 +66,5 @@ export function test(studentFilePath) {
         }, testCase.points)
     })
 
-	return {
-		...getResults(),
-		success: true,
-		error: null,
-		studentCode: originalCode,
-	}
+	return getResults(true, originalCode)
 } 

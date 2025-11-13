@@ -125,11 +125,5 @@ export function test(studentFilePath) {
         return result.success && result.returnValue === true
     }, 10)
 
-    return { 
-        ...getResults(), 
-        success: result.success, 
-        error: result.error, 
-        
-        studentCode: originalCode
-    }
+    return getResults(result.success, originalCode)
 } 
